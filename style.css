@@ -1,0 +1,158 @@
+.container {  
+  display: grid;
+  grid-template-columns: 0.4fr 2fr 0.4fr;
+  grid-template-rows: 20px 2.8fr 20px;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "bar bar bar"
+    "component-list content component-hierarchy"
+    "footer footer footer";
+}
+
+.component-list { 
+  grid-area: component-list;
+  background-color: #1D2021;
+  border-right:1px solid #3C3836;
+  border-left: 1px solid #3C3836;
+}
+
+.content { 
+  grid-area: content; 
+  background-color: #1D2021;
+  overflow:scroll
+}
+
+.bar { 
+  grid-area: bar; 
+  background-color: #1D2021;
+  border:1px solid #3C3836;
+}
+
+.component-hierarchy { 
+  grid-area: component-hierarchy; 
+  background-color: #1D2021;
+  border-left:1px solid #3C3836;
+  border-right:1px solid #3C3836;
+}
+
+.footer { 
+  grid-area: footer; 
+  background-color: #1D2021;
+  border:1px solid #3C3836;
+}
+
+body{
+  margin: 0;
+  background-color: #1D2021;
+  display: flex;
+  height: 100vh;
+}
+
+p{
+  color:#d5c4a1;
+  margin: 0;
+}
+
+canvas{
+  image-rendering: pixelated; 
+  image-rendering: crisp-edges;
+}
+
+/* Menu Bar Start*/
+/* Program Name */
+nav p{
+  float: left;
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+nav ul{
+  display: inline;
+}
+
+/* List Position */
+nav ul li{
+  float: left;
+  list-style: none;
+  position: relative;
+}
+
+/* Text Styling */
+nav ul li a {
+  padding: 0 14px;
+  text-decoration: none;
+  color: #d5c4a1;
+  display: block;
+}
+
+/* Text when Hovering*/
+nav ul li a:hover {
+  color: #bda36c;
+}
+
+/* Nested List */
+nav ul li ul {
+  display: none;
+  position: absolute;
+  background-color: #333;
+  padding: 0;
+}
+
+/* Hover on Text */
+nav ul li:hover ul {
+  display: block;
+}
+/* Menu Bar End*/
+
+.component-list ul {
+  list-style: none;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.component-list ul li{
+  list-style: none;
+  align-items: center;
+  display: flex;
+  background-color: #333;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.component-list ul li a{
+  text-decoration: none;
+  color: #d5c4a1;
+  padding-left: 5px;
+}
+
+.component-list ul li img{
+  padding: 5px;
+  height: 20px;
+}
+
+.items {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+}
+
+.items a{
+  color:#d5c4a1;
+  font-size: 12px;
+}
+
+/* Set all fonts */
+
+*{
+  font-family: Consolas, "Courier New", monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {  width: 10px; height: 10px;}
+::-webkit-scrollbar{ background-color: #424242;}
+::-webkit-scrollbar-track {  background: #424242; }
+::-webkit-scrollbar-thumb { background: #666;}
+::-webkit-scrollbar-thumb:hover {  background: #333;}
+::-webkit-scrollbar-corner {background-color: #424242;}
+::-webkit-scrollbar-button:hover {  background: #666;}
