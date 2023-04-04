@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <title>Document</title>
+    <title>CLC</title>
+    <link rel="icon" type="image/x-icon" href="/images/folder-icon.png" />
   </head>
   <body>
     <div class="container">
@@ -50,7 +51,6 @@
 
       <div class="bar">
         <nav>
-          <p>circuit-layout-creator</p>
           <ul>
             <li>
               <a href="">File</a>
@@ -68,12 +68,39 @@
         </nav>
       </div>
 
+      <div class="barL">
+        <p style="margin-left: 10px">circuit-layout-creator</p>
+      </div>
+
+      <div class="barR">
+        <input type="text" placeholder="Search..." />
+      </div>
+
       <div class="component-hierarchy">
         <p>3</p>
       </div>
 
-      <div class="footer">
+      <div class="footerL">
+        <p>4</p>
+      </div>
+
+      <div class="footerR">
         <p>5</p>
+      </div>
+
+      <div class="view-content">
+        <select
+          name="Zoom"
+          id="zoom-select"
+          value="100"
+          onchange="updateZoom()"
+        >
+          <option value="0.5">50%</option>
+          <option value="1" selected>100%</option>
+          <option value="1.5">150%</option>
+          <option value="2">200%</option>
+          <option value="2.5">250%</option>
+        </select>
       </div>
     </div>
 

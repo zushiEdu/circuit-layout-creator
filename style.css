@@ -5,9 +5,9 @@
   gap: 0px 0px;
   grid-auto-flow: row;
   grid-template-areas:
-    "bar bar bar"
+    "barL bar barR"
     "component-list content component-hierarchy"
-    "footer footer footer";
+    "footerL view-content footerR";
 }
 
 .component-list { 
@@ -20,11 +20,29 @@
 .content { 
   grid-area: content; 
   background-color: #1D2021;
-  overflow:scroll
+  overflow:scroll;
+  cursor:pointer;
+}
+
+.content.active {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
 }
 
 .bar { 
   grid-area: bar; 
+  background-color: #1D2021;
+  border:1px solid #3C3836;
+}
+
+.barL { 
+  grid-area: barL; 
+  background-color: #1D2021;
+  border:1px solid #3C3836;
+}
+
+.barR { 
+  grid-area: barR; 
   background-color: #1D2021;
   border:1px solid #3C3836;
 }
@@ -42,6 +60,20 @@
   border:1px solid #3C3836;
 }
 
+.view-content{
+  grid-area:view-content;
+  background-color: #1D2021;
+  border:1px solid #3C3836;
+}
+
+.footerL{
+  border-top:1px solid #3C3836 ;
+}
+
+.footerR{
+  border-top:1px solid #3C3836 ;
+}
+
 body{
   margin: 0;
   background-color: #1D2021;
@@ -57,6 +89,33 @@ p{
 canvas{
   image-rendering: pixelated; 
   image-rendering: crisp-edges;
+}
+
+select{
+  border-color: #424242;
+  background-color: #424242;
+  color: #d5c4a1;
+  float: right;
+}
+
+input{
+  border-color: #424242;
+  background-color: #424242;
+  color: #d5c4a1;
+  float: right;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding:0;
+  border:0;
+}
+
+ul{
+  margin-top:5px;
+}
+
+html{
+  user-select: none;
 }
 
 /* Menu Bar Start*/

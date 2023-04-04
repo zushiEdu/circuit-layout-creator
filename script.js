@@ -6,14 +6,28 @@ function rgb(r, g, b) {
 
 const canvas = document.getElementById("canvas");
 const painter = canvas.getContext("2d");
+const zoom = document.getElementById("zoom-select");
 
-const height = window.innerHeight;
-const width = window.innerWidth;
+const height = window.innerHeight - 40;
+const width = window.innerWidth * 0.75;
+
+const defaultGridSize = 25;
 
 painter.canvas.width = width;
 painter.canvas.height = height;
 
-drawGrid(0, 0, width, height, 25, new rgb(51, 51, 51));
+
+drawGrid(0, 0, width, height, 25 * zoom.value, new rgb(51, 51, 51));
+
+function updateZoom() {
+    clearGrid();
+    drawGrid(0, 0, width, height, 25 * zoom.value, new rgb(51, 51, 51));
+}
+
+function clearGrid() {
+    painter.fillStyle = `rgb(29,32,33)`;
+    painter.fillRect(0, 0, width, height);
+}
 
 function drawGrid(ax, ay, bx, by, blockSize, color) {
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
@@ -47,3 +61,38 @@ for (i = 0; i < coll.length; i++) {
         }
     });
 }
+
+//Scrolable Content
+const slider = document.querySelector('.content');
+let isDown = false;
+let startX;
+let startY;
+let scrollLeft;
+let scrollTop;
+
+slider.addEventListener('mousedown', (e) => {
+    isDown = true;
+    slider.classList.add('active');
+    startX = e.pageX - slider.offsetLeft;
+    startY = e.pageY - slider.offsetTop;
+    scrollLeft = slider.scrollLeft;
+    scrollTop = slider.scrollTop;
+});
+slider.addEventListener('mouseleave', () => {
+    isDown = false;
+    slider.classList.remove('active');
+});
+slider.addEventListener('mouseup', () => {
+    isDown = false;
+    slider.classList.remove('active');
+});
+slider.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const y = e.pageY - slider.offsetTop;
+    const walkX = (x - startX);
+    const walkY = (y - startY);
+    slider.scrollLeft = scrollLeft - walkX;
+    slider.scrollTop = scrollTop - walkY;
+});
