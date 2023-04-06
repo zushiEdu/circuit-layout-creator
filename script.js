@@ -16,6 +16,13 @@ class circuit {
     }
 }
 
+class pin {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 class component {
     constructor(componentProperty, children) {
         this.componentProperty = componentProperty;
@@ -64,119 +71,20 @@ const width = window.innerWidth * 0.75;
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
+var led_board = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(`5T`, `5T`, `Base Board`, `board`, null, [`#fff`]), new child("diode", "LED1")), new component(new componentProperties(`0.9U`, `0.9U`, `LED1`, `diode-led`, null, [`#fff`]), null)])
+
+var openedCircuit = led_board;
+
 painter.canvas.width = width;
 painter.canvas.height = height;
 
-drawGrid(0, 0, width, height, calcualtedZoom, new rgb(51, 51, 51));
-
-var led_board = new circuit(
-    new circuitProperties(
-        "Led Board",
-        "Led Simply On",
-        "Ethan Huber", "2023-04-04",
-        "2023-04-04"
-    ),
-    [
-        new component(
-            new componentProperties(
-                `5T`,
-                `5T`,
-                `Base Board`,
-                `board`,
-                null,
-                [
-                    `#fff`
-                ]
-            )
-            ,
-            new child("diode", "LED1")
-        ),
-        new component(
-            new componentProperties(
-                `0.9U`,
-                `0.9U`,
-                `LED1`,
-                `diode-led`,
-                null,
-                [
-                    `#fff`
-                ]
-            ),
-            null
-        )
-    ]
-)
-
-//console.log(led_board);
-
-drawType(`diode-led`, null, "5T", "5T");
-
-pinInstruction(220, 220, 220, "L");
-pinInstruction(220, 220, 220, "R");
-rectInstruction(255, 0, 0, "C");
-circleInstruction(255, 0, 0, "U");
-
-function circleInstruction(r, g, b, location) {
-    x = 5 * calcualtedZoom;
-    y = 5 * calcualtedZoom;
-
-    var step = calcualtedZoom / 8;
-
-    painter.fillStyle = `rgb(${r},${g},${b})`;
-    painter.beginPath();
-    switch (location) {
-        case "C":
-            painter.ellipse(x + step * 4, y + step * 4, step * 3, step * 3, 0, 0, 360);
-            break;
-        case "L":
-            painter.ellipse(x + step * 3, y + step * 4, step * 3, step * 3, 0, 0, 360);
-            break;
-        case "R":
-            painter.ellipse(x + step * 5, y + step * 4, step * 3, step * 3, 0, 0, 360);
-            break;
-        case "U":
-            painter.ellipse(x + step * 4, y + step * 3, step * 3, step * 3, 0, 0, 360);
-            break;
-        case "D":
-            painter.ellipse(x + step * 4, y + step * 5, step * 3, step * 3, 0, 0, 360);
-            break;
-    }
-    painter.fill();
+function setup() {
+    refresh();
+    test();
 }
 
-function rectInstruction(r, g, b, location) {
-    x = 5 * calcualtedZoom;
-    y = 5 * calcualtedZoom;
-
-    var step = calcualtedZoom / 8;
-
-    painter.fillStyle = `rgb(${r},${g},${b})`;
-    painter.beginPath();
-    switch (location) {
-        case "C":
-            painter.rect(x + step * 1, y + step * 2, step * 6, step * 4);
-            break;
-    }
-    painter.fill();
-}
-
-function pinInstruction(r, g, b, location) {
-    x = 5 * calcualtedZoom;
-    y = 5 * calcualtedZoom;
-
-    var step = calcualtedZoom / 8;
-
-    painter.fillStyle = `rgb(${r},${g},${b})`;
-    painter.beginPath();
-    switch (location) {
-        case "L":
-            painter.rect(x + step * 2, y + step * 5, step * 1, step * 3);
-            break;
-        case "R":
-            painter.rect(x + step * 5, y + step * 5, step * 1, step * 3);
-            break;
-    }
-    painter.fill();
+function test() {
+    drawType(`diode-led`, [new rgb(255, 0, 0), new rgb(100, 100, 100)], 5, 5, 5, 5);
 }
 
 function drawType(type, colors, gridX, gridY, posX, posY) {
@@ -186,46 +94,45 @@ function drawType(type, colors, gridX, gridY, posX, posY) {
         .then((text) => {
             const lines = text.split("\n");
 
-            var run = true;
-            var lineNumber = 0;
-
-            // Extract Drawing Mode
-            var drawMode;
-            if (gridX[gridX.length] == "T" && gridY[gridY.length] == "T") {
-                drawMode = `tile`;
-
-            } else {
-                drawMode = `single`
-            }
-            gridX = gridX.substr(0, gridX.length - 1);
-            gridY = gridY.substr(0, gridY.length - 1);
+            posX;
+            posY;
 
             // Check For Lines Instruction
-            while (run) {
-                var instruction = lines[lineNumber].split(" ");
-                switch (instruction[0]) {
-                    case "C":
-                        // Defines Circle Properties
-                        break;
-                    case "*":
-                        // End Of File Symbol
-                        run = false;
-                        break;
+            for (var line = 0; line < lines.length; line++) {
+                var instruction = lines[line].split(" ");
+                for (var y = 0; y < gridY; y++) {
+                    for (var x = 0; x < gridX; x++) {
+                        switch (instruction[0]) {
+                            case "C":
+                                // Defines Circle Properties
+                                drawCircle(posX, posY, posX + parseFloat(instruction[3]), posY + parseFloat(instruction[4]), colors[parseInt(instruction[5])]);
+                                break;
+                        }
+                    }
                 }
-
-                lineNumber++;
             }
         });
 }
 
-function updateZoom() {
+function drawCircle(tX, tY, bX, bY, color) {
+    tX *= calcualtedZoom;
+    tY *= calcualtedZoom;
+    bX *= calcualtedZoom;
+    bY *= calcualtedZoom;
+
+    var width = bX - tX;
+    var height = bY - tY;
+    painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.beginPath();
+    painter.ellipse(tX - (calcualtedZoom / 2), tY - (calcualtedZoom / 2), width / 2, height / 2, 0, 0, 360);
+    painter.fill();
+}
+
+function refresh() {
     clearGrid();
     calcualtedZoom = defaultGridSize * zoom.value;
     drawGrid(0, 0, width, height, calcualtedZoom, new rgb(51, 51, 51));
-    pinInstruction(220, 220, 220, "L");
-    pinInstruction(220, 220, 220, "R");
-    rectInstruction(255, 0, 0, "C");
-    circleInstruction(255, 0, 0, "U");
+    test();
 }
 
 function clearGrid() {
@@ -235,7 +142,6 @@ function clearGrid() {
 
 function drawGrid(ax, ay, bx, by, blockSize, color) {
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
-    var height = by - ay;
     for (var x = ax; x <= bx; x = x + blockSize) {
         painter.beginPath();
         painter.moveTo(x + 0.5, ay);
@@ -300,3 +206,5 @@ slider.addEventListener('mousemove', (e) => {
     slider.scrollLeft = scrollLeft - walkX;
     slider.scrollTop = scrollTop - walkY;
 });
+
+setup();
