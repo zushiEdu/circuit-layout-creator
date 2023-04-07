@@ -123,7 +123,7 @@ function layerFour() {
     drawType(`diode-led`, [new rgb(255, 0, 0), new rgb(100, 100, 100)], 1, 1, mid1.x, mid1.y, 0);
     drawType(`diode-led`, [new rgb(0, 255, 0), new rgb(100, 100, 100)], 1, 1, mid2.x, mid2.y, 0);
 
-    drawType(`resistor-default`, [new rgb(141, 172, 156)], 1, 1, 8, 5, 0, 45);
+    drawType(`resistor-default`, [new rgb(141, 172, 156)], 1, 1, 9, 6, 0);
 }
 
 function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
@@ -133,27 +133,33 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
         .then((text) => {
             const lines = text.split("\n");
 
+            posX -= 0.5;
+            posY -= 0.5;
 
             // TOOD: do transforming on whole objects instead of singular commands
             for (var y = 0; y < gridY; y++) {
                 for (var x = 0; x < gridX; x++) {
+
                     // Check For Lines Instruction
                     for (var line = 0; line < lines.length; line++) {
                         var instruction = lines[line].split(" ");
+                        painter.transform(1, 0, 0, 1, (x + posX + (parseFloat(instruction[1]) + parseFloat(instruction[3])) / 2) * calcualtedZoom, (y + posY + (parseFloat(instruction[2]) + parseFloat(instruction[4]) / 2)) * calcualtedZoom);
+                        painter.rotate(degToRad(rotation));
                         switch (instruction[0]) {
                             case "C":
                                 // Defines Circle Properties
-                                drawCircle(x + posX + parseFloat(instruction[1]) - 0.5, y + posY + parseFloat(instruction[2]) - 0.5, x + posX + parseFloat(instruction[3]) - 0.5, y + posY + parseFloat(instruction[4]) - 0.5, colors[parseInt(instruction[5])], rotation);
+                                drawCircle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
                                 break;
                             case "R":
                                 // Defines Rectangle Properties
-                                drawRectangle(x + posX + parseFloat(instruction[1]) - 0.5, y + posY + parseFloat(instruction[2]) - 0.5, x + posX + parseFloat(instruction[3]) - 0.5, y + posY + parseFloat(instruction[4]) - 0.5, colors[parseInt(instruction[5])], rotation);
+                                drawRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
                                 break;
                         }
+                        painter.rotate(-degToRad(rotation));
+                        painter.transform(1, 0, 0, 1, -(x + posX + ((parseFloat(instruction[1]) + parseFloat(instruction[3])) / 2)) * calcualtedZoom, -(y + posY + ((parseFloat(instruction[2]) + parseFloat(instruction[4]) / 2))) * calcualtedZoom);
                     }
                 }
             }
-
         });
 }
 
@@ -172,36 +178,20 @@ function drawConnection(aX, aY, bX, bY, color) {
     painter.lineWidth = 1;
 }
 
-function drawCircle(tX, tY, bX, bY, color, degRotation) {
-    tX *= calcualtedZoom;
-    tY *= calcualtedZoom;
-    bX *= calcualtedZoom;
-    bY *= calcualtedZoom;
-
-    var width = bX - tX;
-    var height = bY - tY;
-
-    var midX = (tX + bX) / 2;
-    var midY = (tY + bY) / 2;
+function drawCircle(tX, tY, bX, bY, color) {
+    var width = (bX - tX) / 2;
+    var height = (bY - tY) / 2;
 
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
-    painter.ellipse(0, 0, width / 2, height / 2, 0, 0, 360);
+    painter.ellipse(0, 0, width, height, 0, 0, 360);
     painter.fill();
     painter.closePath();
 }
 
-function drawRectangle(tX, tY, bX, bY, color, degRotation) {
-    tX *= calcualtedZoom;
-    tY *= calcualtedZoom;
-    bX *= calcualtedZoom;
-    bY *= calcualtedZoom;
-
+function drawRectangle(tX, tY, bX, bY, color) {
     var width = bX - tX;
     var height = bY - tY;
-
-    var midX = (tX + bX) / 2;
-    var midY = (tY + bY) / 2;
 
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
