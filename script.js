@@ -74,7 +74,82 @@ const width = window.innerWidth * 0.75;
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
-var led_board = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(5, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null)])
+var led_board = new circuit(
+    new circuitProperties(
+        "Led Board",
+        "Led Simply On",
+        "Ethan Huber",
+        "2023-04-04",
+        "2023-04-04"
+    ),
+    [
+        new component(
+            new componentProperties(
+                5,
+                5,
+                `Base Board`,
+                `board-perf`,
+                null,
+                [
+                    new rgb(175, 135, 63),
+                    new rgb(232, 177, 137),
+                    new rgb(29, 32, 33)
+                ],
+                [
+                    new pin(1, 1)
+                ],
+                0,
+                1),
+            new child("diode-led", "LED1")
+        ),
+        new component(
+            new componentProperties(
+                1,
+                1,
+                `LED1`,
+                `diode-led`,
+                null,
+                [
+                    new rgb(255, 0, 0),
+                    new rgb(100, 100, 100)
+                ],
+                [
+                    new pin(1, 1),
+                    new pin(3, 1)
+                ],
+                0,
+                4
+            ),
+            null
+        ),
+        new component(
+            new componentProperties(
+                1,
+                1,
+                `555 Chip`,
+                `ic-4b4`,
+                null,
+                [
+                    new rgb(50, 50, 50),
+                    new rgb(255, 255, 255)
+                ],
+                [
+                    new pin(1, 2),
+                    new pin(2, 2),
+                    new pin(3, 2),
+                    new pin(4, 2),
+                    new pin(1, 5),
+                    new pin(2, 5),
+                    new pin(3, 5),
+                    new pin(4, 5)
+                ],
+                0,
+                4
+            ),
+            null
+        )
+    ]
+)
 
 var openedCircuit = led_board;
 
@@ -114,16 +189,19 @@ function layerOne() {
 
 // put traces on this layer
 function layerTwo() {
-    for (var i = 0; i < l3.length; i++) {
-        drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(50, 50, 50));
-    }
     setTimeout(layerThree, 100);
 }
 
 // put component pins on this layer
 function layerThree() {
     for (var i = 0; i < l3.length; i++) {
-        drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
+        if (l3[i].length == 2) {
+            drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
+        } else {
+            for (var j = 0; j < l3[i].length; j++) {
+                drawPin(l3[i][j].x, l3[i][j].y, new rgb(102, 102, 102));
+            }
+        }
     }
     setTimeout(layerFour, 100);
 }
@@ -138,6 +216,14 @@ function layerFour() {
         }
         drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation);
     }
+}
+
+function drawPin(posX, posY, color) {
+    painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.beginPath();
+    painter.ellipse((posX + 0.5) * calcualtedZoom, (posY + 0.5) * calcualtedZoom, 5 * zoom.value, 5 * zoom.value, 0, 0, 360);
+    painter.fill();
+    painter.closePath();
 }
 
 function drawCircuit(selectedCircuit) {
@@ -184,23 +270,31 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
             // Check For Lines Instruction
             for (var line = 0; line < lines.length; line++) {
                 var instruction = lines[line].split(" ");
-                for (var y = 0; y < gridY; y++) {
-                    for (var x = 0; x < gridX; x++) {
-                        painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
-                        painter.rotate(degToRad(rotation));
-                        switch (instruction[0]) {
-                            case "C":
+                switch (instruction[0]) {
+                    case "C":
+                        for (var y = 0; y < gridY; y++) {
+                            for (var x = 0; x < gridX; x++) {
                                 // Defines Circle Properties
+                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
+                                painter.rotate(degToRad(rotation));
                                 drawCircle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
-                                break;
-                            case "R":
-                                // Defines Rectangle Properties
-                                drawRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
-                                break;
+                                painter.rotate(-degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                            }
                         }
-                        painter.rotate(-degToRad(rotation));
-                        painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
-                    }
+                        break;
+                    case "R":
+                        for (var y = 0; y < gridY; y++) {
+                            for (var x = 0; x < gridX; x++) {
+                                // Defines Circle Properties
+                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
+                                painter.rotate(degToRad(rotation));
+                                drawRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
+                                painter.rotate(-degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                            }
+                        }
+                        break;
                 }
             }
         });
