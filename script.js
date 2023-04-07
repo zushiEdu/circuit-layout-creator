@@ -35,13 +35,16 @@ class component {
 }
 
 class componentProperties {
-    constructor(height, width, name, type, value, colors,) {
+    constructor(height, width, name, type, value, colors, pins, rotation, layer) {
         this.height = height;
         this.width = width;
         this.name = name;
         this.colors = colors;
         this.value = value;
         this.type = type;
+        this.pins = pins;
+        this.rotation = rotation;
+        this.layer = layer;
     }
 }
 
@@ -71,7 +74,7 @@ const width = window.innerWidth * 0.75;
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
-var led_board = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(`5T`, `5T`, `Base Board`, `board`, null, [`#fff`]), new child("diode", "LED1")), new component(new componentProperties(`0.9U`, `0.9U`, `LED1`, `diode-led`, null, [`#fff`]), null)])
+var led_board = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(5, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null)])
 
 var openedCircuit = led_board;
 
@@ -87,43 +90,89 @@ function setup() {
         canvas.height = height * zoom.value;
     }
     drawGrid(0, 0, width * zoom.value, height * zoom.value, calcualtedZoom, new rgb(51, 51, 51));
-    layerOne();
+    drawCircuit(openedCircuit);
 }
+
+var l1 = [];
+var l2 = [];
+var l3 = [];
+var l4 = [];
 
 // try to put boards on this layer
 function layerOne() {
-    drawType(`board-perf`, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], 9, 9, 5, 5, 0);
+    for (var i = 0; i < l1.length; i++) {
+        if (l1[i].pins.length > 1) {
+            var centerPoint = averagePinPos(c.pins);
+        } else {
+            var centerPoint = new pin(1, 1);
+        }
+        drawType(l1[i].type, l1[i].colors, l1[i].width, l1[i].height, centerPoint.x, centerPoint.y, l1[i].rotation);
+    }
 
     setTimeout(layerTwo, 100);
 }
 
 // put traces on this layer
 function layerTwo() {
-    drawConnection(5, 5, 5, 13, new rgb(0, 0, 0));
-    drawConnection(5, 13, 13, 13, new rgb(0, 0, 0));
-    drawConnection(13, 13, 13, 5, new rgb(0, 0, 0));
-    drawConnection(13, 13, 13, 5, new rgb(0, 0, 0));
-    drawConnection(8, 9, 10, 9, new rgb(0, 0, 0));
-
+    for (var i = 0; i < l3.length; i++) {
+        drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(50, 50, 50));
+    }
     setTimeout(layerThree, 100);
 }
 
 // put component pins on this layer
 function layerThree() {
-    drawConnection(5, 5, 8, 9, new rgb(150, 150, 150));
-    drawConnection(10, 9, 13, 5, new rgb(150, 150, 150));
-
+    for (var i = 0; i < l3.length; i++) {
+        drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
+    }
     setTimeout(layerFour, 100);
 }
 
 // put components on this layer
 function layerFour() {
-    var mid1 = new pin((5 + 8) / 2, (5 + 9) / 2);
-    var mid2 = new pin((10 + 13) / 2, (5 + 9) / 2);
-    drawType(`diode-led`, [new rgb(255, 0, 0), new rgb(100, 100, 100)], 1, 1, mid1.x, mid1.y, 0);
-    drawType(`diode-led`, [new rgb(0, 255, 0), new rgb(100, 100, 100)], 1, 1, mid2.x, mid2.y, 0);
+    for (var i = 0; i < l4.length; i++) {
+        if (l4[i].pins.length > 1) {
+            var centerPoint = averagePinPos(l4[i].pins);
+        } else {
+            var centerPoint = new pin(1, 1);
+        }
+        drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation);
+    }
+}
 
-    drawType(`resistor-default`, [new rgb(141, 172, 156)], 1, 1, 9, 6, 0);
+function drawCircuit(selectedCircuit) {
+    for (var i = 0; i < selectedCircuit.components.length; i++) {
+        var c = selectedCircuit.components[i].componentProperty;
+        switch (c.layer) {
+            case 1:
+                // Board & Bases Layer
+                l1.push(c);
+                break;
+            case 2:
+                l2.push(c);
+                break;
+            case 4:
+                // Components
+                l3.push(c.pins);
+                l4.push(c);
+                break;
+        }
+    }
+    layerOne();
+}
+
+function averagePinPos(pins) {
+    var xSum = 0;
+    var ySum = 0;
+
+    for (var i = 0; i < pins.length; i++) {
+        xSum += pins[i].x;
+        ySum += pins[i].y;
+    }
+
+    var averagePin = new pin(xSum / pins.length, ySum / pins.length);
+
+    return averagePin;
 }
 
 function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
@@ -132,18 +181,12 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
         .then((response) => response.text())
         .then((text) => {
             const lines = text.split("\n");
-
-            posX -= 0.5;
-            posY -= 0.5;
-
-            // TOOD: do transforming on whole objects instead of singular commands
-            for (var y = 0; y < gridY; y++) {
-                for (var x = 0; x < gridX; x++) {
-
-                    // Check For Lines Instruction
-                    for (var line = 0; line < lines.length; line++) {
-                        var instruction = lines[line].split(" ");
-                        painter.transform(1, 0, 0, 1, (x + posX + (parseFloat(instruction[1]) + parseFloat(instruction[3])) / 2) * calcualtedZoom, (y + posY + (parseFloat(instruction[2]) + parseFloat(instruction[4]) / 2)) * calcualtedZoom);
+            // Check For Lines Instruction
+            for (var line = 0; line < lines.length; line++) {
+                var instruction = lines[line].split(" ");
+                for (var y = 0; y < gridY; y++) {
+                    for (var x = 0; x < gridX; x++) {
+                        painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
                         painter.rotate(degToRad(rotation));
                         switch (instruction[0]) {
                             case "C":
@@ -156,7 +199,7 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
                                 break;
                         }
                         painter.rotate(-degToRad(rotation));
-                        painter.transform(1, 0, 0, 1, -(x + posX + ((parseFloat(instruction[1]) + parseFloat(instruction[3])) / 2)) * calcualtedZoom, -(y + posY + ((parseFloat(instruction[2]) + parseFloat(instruction[4]) / 2))) * calcualtedZoom);
+                        painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
                     }
                 }
             }
@@ -165,14 +208,10 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
 
 function drawConnection(aX, aY, bX, bY, color) {
     painter.beginPath();
-    aX *= calcualtedZoom;
-    aY *= calcualtedZoom;
-    bX *= calcualtedZoom;
-    bY *= calcualtedZoom;
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.lineWidth = 5 * zoom.value;
-    painter.moveTo(aX, aY);
-    painter.lineTo(bX, bY);
+    painter.moveTo((aX + 0.5) * calcualtedZoom, (aY + 0.5) * calcualtedZoom);
+    painter.lineTo((bX + 0.5) * calcualtedZoom, (bY + 0.5) * calcualtedZoom);
     painter.stroke();
     painter.closePath();
     painter.lineWidth = 1;
@@ -182,9 +221,12 @@ function drawCircle(tX, tY, bX, bY, color) {
     var width = (bX - tX) / 2;
     var height = (bY - tY) / 2;
 
+    var midX = (bX + tX) / 2;
+    var midY = (bY + tY) / 2;
+
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
-    painter.ellipse(0, 0, width, height, 0, 0, 360);
+    painter.ellipse(midX - (0.5 * calcualtedZoom), midY - (0.5 * calcualtedZoom), width, height, 0, 0, 360);
     painter.fill();
     painter.closePath();
 }
@@ -195,7 +237,7 @@ function drawRectangle(tX, tY, bX, bY, color) {
 
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
-    painter.rect(- width / 2, -height / 2, width, height);
+    painter.rect(tX - (0.5 * calcualtedZoom), tY - (0.5 * calcualtedZoom), width, height);
     painter.fill();
     painter.closePath();
 }
@@ -209,14 +251,14 @@ function drawGrid(ax, ay, bx, by, blockSize, color) {
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     for (var x = ax; x <= bx; x = x + blockSize) {
         painter.beginPath();
-        painter.moveTo(x + 0.5, ay);
-        painter.lineTo(x + 0.5, by);
+        painter.moveTo(x + 0.5 + (blockSize / 2), ay);
+        painter.lineTo(x + 0.5 + (blockSize / 2), by);
         painter.stroke();
     }
     for (var y = ay; y <= by; y = y + blockSize) {
         painter.beginPath();
-        painter.moveTo(ax, y + 0.5);
-        painter.lineTo(bx, y + 0.5);
+        painter.moveTo(ax, y + 0.5 + (blockSize / 2));
+        painter.lineTo(bx, y + 0.5 + (blockSize / 2));
         painter.stroke();
     }
     painter.closePath();
