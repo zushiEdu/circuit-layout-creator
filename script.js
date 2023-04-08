@@ -6,9 +6,10 @@ class child {
 }
 
 class circuit {
-    constructor(circuitProperty, components) {
+    constructor(circuitProperty, components, traces) {
         this.circuitProperty = circuitProperty;
         this.components = components;
+        this.traces = traces;
     }
 
     addComponent(component) {
@@ -58,6 +59,13 @@ class circuitProperties {
     }
 }
 
+class trace {
+    constructor(pin1, pin2) {
+        this.pin1 = pin1;
+        this.pin2 = pin2;
+    }
+}
+
 function rgb(r, g, b) {
     this.r = r;
     this.g = g;
@@ -85,7 +93,7 @@ var led_board = new circuit(
     [
         new component(
             new componentProperties(
-                5,
+                6,
                 5,
                 `Base Board`,
                 `board-perf`,
@@ -131,7 +139,10 @@ var led_board = new circuit(
                 null,
                 [
                     new rgb(50, 50, 50),
-                    new rgb(255, 255, 255)
+                    new rgb(255, 255, 255),
+                    new rgb(102, 102, 102),
+                    new rgb(255, 255, 255),
+                    new rgb(0, 0, 0)
                 ],
                 [
                     new pin(1, 2),
@@ -147,7 +158,69 @@ var led_board = new circuit(
                 4
             ),
             null
+        ),
+        new component(
+            new componentProperties(
+                1,
+                1,
+                `Capacitor`,
+                `capacitor-polarized`,
+                `10uF`,
+                [
+                    new rgb(50, 50, 50),
+                    new rgb(150, 150, 150)
+                ],
+                [
+                    new pin(5, 1),
+                    new pin(5, 3)
+                ],
+                0,
+                4
+            ),
+            null
+        ),
+        new component(
+            new componentProperties(
+                1,
+                1,
+                `Pot`,
+                `resistor-pot`,
+                `1k`,
+                [
+                    new rgb(0, 0, 255),
+                    new rgb(255, 255, 255)
+                ],
+                [
+                    new pin(5, 4),
+                    new pin(5, 5),
+                    new pin(5, 6)
+                ],
+                0,
+                4
+            ),
+            null
+        ),
+        new component(
+            new componentProperties(
+                1,
+                2,
+                `Header`,
+                `header-female`,
+                null,
+                [
+                    new rgb(50, 50, 50),
+                    new rgb(150, 150, 150)
+                ],
+                [
+                    new pin(1, 6),
+                ],
+                0,
+                4
+            )
         )
+    ],
+    [
+        new trace(new pin(1, 1), new pin(1, 2))
     ]
 )
 
@@ -189,6 +262,9 @@ function layerOne() {
 
 // put traces on this layer
 function layerTwo() {
+    for (var i = 0; i < l2.length; i++) {
+        drawConnection(l2[i].pin1.x, l2[i].pin1.y, l2[i].pin2.x, l2[i].pin2.y, new rgb(0, 0, 0));
+    }
     setTimeout(layerThree, 100);
 }
 
@@ -197,6 +273,9 @@ function layerThree() {
     for (var i = 0; i < l3.length; i++) {
         if (l3[i].length == 2) {
             drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
+        } else if (l3[i].length == 3) {
+            drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
+            drawConnection(l3[i][1].x, l3[i][1].y, l3[i][2].x, l3[i][2].y, new rgb(102, 102, 102));
         } else {
             for (var j = 0; j < l3[i].length; j++) {
                 drawPin(l3[i][j].x, l3[i][j].y, new rgb(102, 102, 102));
@@ -209,11 +288,7 @@ function layerThree() {
 // put components on this layer
 function layerFour() {
     for (var i = 0; i < l4.length; i++) {
-        if (l4[i].pins.length > 1) {
-            var centerPoint = averagePinPos(l4[i].pins);
-        } else {
-            var centerPoint = new pin(1, 1);
-        }
+        var centerPoint = averagePinPos(l4[i].pins);
         drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation);
     }
 }
@@ -243,6 +318,10 @@ function drawCircuit(selectedCircuit) {
                 l4.push(c);
                 break;
         }
+    }
+    for (var j = 0; j < selectedCircuit.traces.length; j++) {
+        var t = selectedCircuit.traces[j];
+        l2.push(t);
     }
     layerOne();
 }
@@ -295,9 +374,41 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
                             }
                         }
                         break;
+                    case "RR":
+                        for (var y = 0; y < gridY; y++) {
+                            for (var x = 0; x < gridX; x++) {
+                                // Defines Circle Properties
+                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
+                                painter.rotate(degToRad(rotation));
+                                drawRoundedRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
+                                painter.rotate(-degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                            }
+                        }
+                        break;
+                    case "Text":
+                        for (var y = 0; y < gridY; y++) {
+                            for (var x = 0; x < gridX; x++) {
+                                // Defines Circle Properties
+                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
+                                painter.rotate(degToRad(rotation));
+                                paintText(instruction[1] * calcualtedZoom, instruction[2] * calcualtedZoom, instruction[3], colors[parseInt(instruction[4])]);
+                                painter.rotate(-degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                            }
+                        }
+                        break;
                 }
             }
         });
+}
+
+function paintText(x, y, text, color) {
+    painter.beginPath();
+    painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.font = `${parseInt(calcualtedZoom)}px Arial`;
+    painter.fillText(text, x - (painter.measureText(text).width / 2), y - ((painter.measureText(text).fontBoundingBoxDescent - painter.measureText(text).fontBoundingBoxAscent) / 2));
+    painter.closePath();
 }
 
 function drawConnection(aX, aY, bX, bY, color) {
@@ -332,6 +443,17 @@ function drawRectangle(tX, tY, bX, bY, color) {
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
     painter.rect(tX - (0.5 * calcualtedZoom), tY - (0.5 * calcualtedZoom), width, height);
+    painter.fill();
+    painter.closePath();
+}
+
+function drawRoundedRectangle(tX, tY, bX, bY, color) {
+    var width = bX - tX;
+    var height = bY - tY;
+
+    painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.beginPath();
+    painter.roundRect(tX - (0.5 * calcualtedZoom), tY - (0.5 * calcualtedZoom), width, height, [5 * zoom.value]);
     painter.fill();
     painter.closePath();
 }
