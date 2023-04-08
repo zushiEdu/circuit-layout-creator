@@ -74,6 +74,18 @@
   border-top:1px solid #3C3836 ;
 }
 
+.property-window{
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #bda36c;
+}
+
+button{
+  float:right;
+  background-color:#424242;
+  border: none;
+}
+
 body{
   margin: 0;
   background-color: #1D2021;
@@ -82,7 +94,7 @@ body{
   overflow: hidden;
 }
 
-p{
+p, td {
   color:#d5c4a1;
   margin: 0;
 }
