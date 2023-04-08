@@ -87,147 +87,7 @@ const width = window.innerWidth * 0.75;
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
-var testBoard = new circuit(
-    new circuitProperties(
-        "Led Board",
-        "Led Simply On",
-        "Ethan Huber",
-        "2023-04-04",
-        "2023-04-04"
-    ),
-    [
-        new component(
-            new componentProperties(
-                6,
-                5,
-                `Base Board`,
-                `board-perf`,
-                null,
-                [
-                    new rgb(175, 135, 63),
-                    new rgb(232, 177, 137),
-                    new rgb(29, 32, 33)
-                ],
-                [
-                    new pin(1, 1)
-                ],
-                0,
-                1),
-            new child("diode-led", "LED1")
-        ),
-        new component(
-            new componentProperties(
-                1,
-                1,
-                `LED1`,
-                `diode-led`,
-                null,
-                [
-                    new rgb(255, 0, 0),
-                    new rgb(100, 100, 100)
-                ],
-                [
-                    new pin(1, 1),
-                    new pin(3, 1)
-                ],
-                0,
-                4
-            ),
-            null
-        ),
-        new component(
-            new componentProperties(
-                1,
-                1,
-                `555 Chip`,
-                `ic-4b4`,
-                null,
-                [
-                    new rgb(50, 50, 50),
-                    new rgb(255, 255, 255),
-                    new rgb(102, 102, 102),
-                    new rgb(255, 255, 255),
-                    new rgb(0, 0, 0)
-                ],
-                [
-                    new pin(1, 2),
-                    new pin(2, 2),
-                    new pin(3, 2),
-                    new pin(4, 2),
-                    new pin(1, 5),
-                    new pin(2, 5),
-                    new pin(3, 5),
-                    new pin(4, 5)
-                ],
-                0,
-                4
-            ),
-            null
-        ),
-        new component(
-            new componentProperties(
-                1,
-                1,
-                `Capacitor`,
-                `capacitor-polarized`,
-                `10uF`,
-                [
-                    new rgb(50, 50, 50),
-                    new rgb(150, 150, 150)
-                ],
-                [
-                    new pin(5, 1),
-                    new pin(5, 3)
-                ],
-                0,
-                4
-            ),
-            null
-        ),
-        new component(
-            new componentProperties(
-                1,
-                1,
-                `Pot`,
-                `resistor-pot`,
-                `1k`,
-                [
-                    new rgb(0, 0, 255),
-                    new rgb(255, 255, 255)
-                ],
-                [
-                    new pin(5, 4),
-                    new pin(5, 5),
-                    new pin(5, 6)
-                ],
-                0,
-                4
-            ),
-            null
-        ),
-        new component(
-            new componentProperties(
-                1,
-                2,
-                `Header`,
-                `header-female`,
-                null,
-                [
-                    new rgb(50, 50, 50),
-                    new rgb(150, 150, 150)
-                ],
-                [
-                    new pin(1, 6),
-                ],
-                0,
-                4
-            )
-        )
-    ],
-    [
-        new trace(new pin(1, 1), new pin(1, 2))
-    ]
-)
+var testBoard = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(6, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null), new component(new componentProperties(1, 1, `555 Chip`, `ic-4b4`, null, [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], [new pin(1, 2), new pin(2, 2), new pin(3, 2), new pin(4, 2), new pin(1, 5), new pin(2, 5), new pin(3, 5), new pin(4, 5)], 0, 4), null), new component(new componentProperties(1, 1, `Capacitor`, `capacitor-polarized`, `10uF`, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(5, 1), new pin(5, 3)], 0, 4), null), new component(new componentProperties(1, 1, `Pot`, `resistor-pot`, `1k`, [new rgb(0, 0, 255), new rgb(255, 255, 255)], [new pin(5, 4), new pin(5, 5), new pin(5, 6)], 0, 4), null), new component(new componentProperties(1, 2, `Header`, `header-female`, null, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(1, 6),], 0, 4))], [new trace(new pin(1, 1), new pin(1, 2))])
 
 var openedCircuit = testBoard;
 
@@ -336,7 +196,7 @@ function layerOne() {
         drawType(l1[i].type, l1[i].colors, l1[i].width, l1[i].height, centerPoint.x, centerPoint.y, l1[i].rotation);
     }
 
-    setTimeout(layerTwo, 100);
+    setTimeout(layerTwo, 100 * zoom.value);
 }
 
 // put traces on this layer
@@ -350,7 +210,7 @@ function layerTwo() {
         drawConnection(l2[i].pin1.x, l2[i].pin1.y, l2[i].pin2.x, l2[i].pin2.y, new rgb(0, 0, 0));
     }
 
-    setTimeout(layerThree, 100);
+    setTimeout(layerThree, 100 * zoom.value);
 }
 
 // put component pins on this layer
@@ -373,7 +233,7 @@ function layerThree() {
         }
     }
 
-    setTimeout(layerFour, 100);
+    setTimeout(layerFour, 100 * zoom.value);
 }
 
 // put components on this layer
