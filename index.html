@@ -14,7 +14,7 @@
         <ul>
           <li class="collapsible">
             <img src="/Images/folder-icon.png" />
-            <a onclick="" href="#">Capacitors</a>
+            <a href="#">Capacitors</a>
           </li>
           <div class="items">
             <li>
@@ -53,18 +53,46 @@
         <nav>
           <ul>
             <li>
-              <a href="">File</a>
+              <a href="#">File</a>
               <ul>
                 <li><a href="#">New</a></li>
-                <li><a href="#">Open</a></li>
-                <li><a href="#">Save</a></li>
-                <li><a href="#">Close</a></li>
+                <li><a onclick="importData()" href="#">Open</a></li>
+                <li><a onclick="saveOpenedCircuit()" href="#">Save</a></li>
+                <li><a onclick="closeCircuits()" href="#">Close</a></li>
               </ul>
             </li>
-            <li><a href="">Edit</a></li>
-            <li><a href="">Config</a></li>
-            <li><a href="">Layers</a></li>
-            <li><a href="">Help</a></li>
+
+            <li><a href="#">Edit</a></li>
+
+            <li><a href="#">Config</a></li>
+
+            <li>
+              <a href="#">Layers</a>
+              <ul>
+                <li>
+                  <a id="board-toggle" onclick="toggleLayer(0)" href="#"
+                    >✓ Boards</a
+                  >
+                </li>
+                <li>
+                  <a id="trace-toggle" onclick="toggleLayer(1)" href="#"
+                    >✓ Traces</a
+                  >
+                </li>
+                <li>
+                  <a id="connector-toggle" onclick="toggleLayer(2)" href="#"
+                    >✓ Connectors</a
+                  >
+                </li>
+                <li>
+                  <a id="component-toggle" onclick="toggleLayer(3)" href="#"
+                    >✓ Components</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li><a href="#">Help</a></li>
           </ul>
         </nav>
       </div>

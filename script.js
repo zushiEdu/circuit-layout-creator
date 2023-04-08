@@ -76,13 +76,18 @@ const canvas = document.getElementById("canvas");
 const painter = canvas.getContext("2d");
 const zoom = document.getElementById("zoom-select");
 
+const boardToggleDisplay = document.getElementById("board-toggle");
+const traceToggleDisplay = document.getElementById("trace-toggle");
+const connectorToggleDisplay = document.getElementById("connector-toggle");
+const componentToggleDisplay = document.getElementById("component-toggle");
+
 const height = window.innerHeight - 40;
 const width = window.innerWidth * 0.75;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
-var led_board = new circuit(
+var testBoard = new circuit(
     new circuitProperties(
         "Led Board",
         "Led Simply On",
@@ -224,7 +229,7 @@ var led_board = new circuit(
     ]
 )
 
-var openedCircuit = led_board;
+var openedCircuit = testBoard;
 
 painter.canvas.width = width;
 painter.canvas.height = height;
@@ -241,13 +246,87 @@ function setup() {
     drawCircuit(openedCircuit);
 }
 
+var results;
+function importData() {
+    var element = document.createElement('div');
+    element.innerHTML = '<input type="file">';
+    var fileInput = element.firstChild;
+    fileInput.addEventListener('change', function () {
+        var file = fileInput.files[0];
+        if (file.name.match(/\.(json)$/)) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                openedCircuit = JSON.parse(reader.result);
+                setup();
+            };
+            reader.readAsText(file);
+        } else {
+            alert("File not supported, .json files only");
+        }
+    });
+    fileInput.click();
+}
+
+function saveVariableToFile(variable, saveName) {
+    var thingToSave = JSON.stringify(variable);
+    var hiddenElement = document.createElement("a");
+    hiddenElement.href = "data:attachment/text," + encodeURI(thingToSave);
+    hiddenElement.target = "_blank";
+    hiddenElement.download = `${saveName}.json`;
+    hiddenElement.click();
+}
+
+function saveOpenedCircuit() {
+    var fileName = openedCircuit.circuitProperty.name.toLowerCase().replace(" ", "-");
+    saveVariableToFile(openedCircuit, fileName);
+}
+
+function closeCircuits() {
+    openedCircuit = null;
+    setup();
+}
+
 var l1 = [];
 var l2 = [];
 var l3 = [];
 var l4 = [];
 
+var layerToggles = [true, true, true, true];
+
+function toggleLayer(toggleLayer) {
+    layerToggles[toggleLayer] = !layerToggles[toggleLayer];
+    var prefix = "";
+    if (layerToggles[toggleLayer]) {
+        prefix = "✓"
+    } else {
+        prefix = "✗"
+    }
+
+    switch (toggleLayer) {
+        case 0:
+            boardToggleDisplay.innerText = prefix + " Boards";
+            break;
+        case 1:
+            traceToggleDisplay.innerText = prefix + " Traces";
+            break;
+        case 2:
+            connectorToggleDisplay.innerText = prefix + " Connectors";
+            break;
+        case 3:
+            componentToggleDisplay.innerHTML = prefix + " Components";
+            break;
+    }
+
+    setup();
+}
+
 // try to put boards on this layer
 function layerOne() {
+    if (!layerToggles[0]) {
+        painter.globalAlpha = 0.1;
+    } else {
+        painter.globalAlpha = 1;
+    }
     for (var i = 0; i < l1.length; i++) {
         if (l1[i].pins.length > 1) {
             var centerPoint = averagePinPos(c.pins);
@@ -262,14 +341,25 @@ function layerOne() {
 
 // put traces on this layer
 function layerTwo() {
+    if (!layerToggles[1]) {
+        painter.globalAlpha = 0.1;
+    } else {
+        painter.globalAlpha = 1;
+    }
     for (var i = 0; i < l2.length; i++) {
         drawConnection(l2[i].pin1.x, l2[i].pin1.y, l2[i].pin2.x, l2[i].pin2.y, new rgb(0, 0, 0));
     }
+
     setTimeout(layerThree, 100);
 }
 
 // put component pins on this layer
 function layerThree() {
+    if (!layerToggles[2]) {
+        painter.globalAlpha = 0.1;
+    } else {
+        painter.globalAlpha = 1;
+    }
     for (var i = 0; i < l3.length; i++) {
         if (l3[i].length == 2) {
             drawConnection(l3[i][0].x, l3[i][0].y, l3[i][1].x, l3[i][1].y, new rgb(102, 102, 102));
@@ -282,11 +372,17 @@ function layerThree() {
             }
         }
     }
+
     setTimeout(layerFour, 100);
 }
 
 // put components on this layer
 function layerFour() {
+    if (!layerToggles[3]) {
+        painter.globalAlpha = 0.1;
+    } else {
+        painter.globalAlpha = 1;
+    }
     for (var i = 0; i < l4.length; i++) {
         var centerPoint = averagePinPos(l4[i].pins);
         drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation);
@@ -302,28 +398,30 @@ function drawPin(posX, posY, color) {
 }
 
 function drawCircuit(selectedCircuit) {
-    for (var i = 0; i < selectedCircuit.components.length; i++) {
-        var c = selectedCircuit.components[i].componentProperty;
-        switch (c.layer) {
-            case 1:
-                // Board & Bases Layer
-                l1.push(c);
-                break;
-            case 2:
-                l2.push(c);
-                break;
-            case 4:
-                // Components
-                l3.push(c.pins);
-                l4.push(c);
-                break;
+    if (selectedCircuit != null) {
+        for (var i = 0; i < selectedCircuit.components.length; i++) {
+            var c = selectedCircuit.components[i].componentProperty;
+            switch (c.layer) {
+                case 1:
+                    // Board & Bases Layer
+                    l1.push(c);
+                    break;
+                case 2:
+                    l2.push(c);
+                    break;
+                case 4:
+                    // Components
+                    l3.push(c.pins);
+                    l4.push(c);
+                    break;
+            }
         }
+        for (var j = 0; j < selectedCircuit.traces.length; j++) {
+            var t = selectedCircuit.traces[j];
+            l2.push(t);
+        }
+        layerOne();
     }
-    for (var j = 0; j < selectedCircuit.traces.length; j++) {
-        var t = selectedCircuit.traces[j];
-        l2.push(t);
-    }
-    layerOne();
 }
 
 function averagePinPos(pins) {

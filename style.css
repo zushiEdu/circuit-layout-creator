@@ -119,12 +119,15 @@ html{
   user-select: none;
 }
 
+a{
+  white-space: nowrap;
+}
+
 /* Menu Bar Start*/
 /* Program Name */
 nav p{
   float: left;
   padding: 0 10px;
-  font-weight: bold;
 }
 
 nav ul{
@@ -153,6 +156,7 @@ nav ul li a:hover {
 
 /* Nested List */
 nav ul li ul {
+  margin-top: 0;
   display: none;
   position: absolute;
   background-color: #333;
