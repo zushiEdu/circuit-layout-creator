@@ -12,37 +12,117 @@
     <div class="container">
       <div class="component-list">
         <ul>
-          <li class="collapsible">
-            <img src="/Images/folder-icon.png" />
-            <a href="#">Capacitors</a>
-          </li>
-          <div class="items">
-            <li>
-              <img src="/Images/folder-icon.png" />
-              <a>Radial Electrolytic Capacitor</a>
-            </li>
-            <li>
-              <img src="/Images/folder-icon.png" />
+          <div>
+            <!--Start of New Component List-->
 
-              <a>Axial Electrolytic Capacitor</a>
-            </li>
-            <li>
+            <!--Boards-->
+            <li class="collapsible">
               <img src="/Images/folder-icon.png" />
-
-              <a>Ceramic Capacitor</a>
+              <a href="#">Boards</a>
             </li>
-            <li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`board-perf`)">Perf Board</a>
+              </li>
+            </div>
+            <!--Capacitors-->
+            <li class="collapsible">
               <img src="/Images/folder-icon.png" />
-
-              <a>Radial Film Capacitor</a>
+              <a href="#">Capacitors</a>
             </li>
-            <li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`capacitor-polarized`)">Polarized</a>
+              </li>
+            </div>
+            <!--Diodes-->
+            <li class="collapsible">
               <img src="/Images/folder-icon.png" />
-
-              <a>Axial Film Capacitor</a>
+              <a href="#">Diodes & LEDs</a>
             </li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`diode-led`)">LED</a>
+              </li>
+            </div>
+            <!--Headers-->
+            <li class="collapsible">
+              <img src="/Images/folder-icon.png" />
+              <a href="#">Headers</a>
+            </li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`header-male`)">Male Header</a>
+              </li>
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`header-female`)">Female Header</a>
+              </li>
+            </div>
+            <!--Integrated Circuits-->
+            <li class="collapsible">
+              <img src="/Images/folder-icon.png" />
+              <a href="#">ICs</a>
+            </li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`ic-4b4`)">4x4 IC</a>
+              </li>
+            </div>
+            <!--Resistors-->
+            <li class="collapsible">
+              <img src="/Images/folder-icon.png" />
+              <a href="#">Resistors</a>
+            </li>
+            <div class="items">
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`resistor-default`)">Default</a>
+              </li>
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`resistor-pot`)">Potentiometer</a>
+              </li>
+            </div>
+            <!--End of New Component List-->
           </div>
         </ul>
+        <div class="newCircuitWindow">
+          <table>
+            <tr>
+              <td>New Circuit</td>
+              <td>
+                <button onclick="closeCircuitMenu()" id="newCircuitWindowClose">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td><input type="text" id="circuitName" /></td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td><input type="text" id="circuitDescription" /></td>
+            </tr>
+            <tr>
+              <td>Author</td>
+              <td><input type="text" id="circuitAuthor" /></td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="newCircuit()" style="float: left">
+                  <p>Create</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <div class="content">
@@ -55,16 +135,17 @@
             <li>
               <a href="#">File</a>
               <ul>
-                <li><a href="#">New</a></li>
+                <li><a onclick="openCircuitMenu()" href="#">New</a></li>
                 <li><a onclick="importData()" href="#">Open</a></li>
                 <li><a onclick="saveOpenedCircuit()" href="#">Save</a></li>
                 <li><a onclick="closeCircuits()" href="#">Close</a></li>
               </ul>
             </li>
 
-            <li><a href="#">Edit</a></li>
-
-            <li><a href="#">Config</a></li>
+            <!--
+              <li><a href="#">Edit</a></li>
+              <li><a href="#">Config</a></li>
+            -->
 
             <li>
               <a href="#">Layers</a>
@@ -92,7 +173,28 @@
               </ul>
             </li>
 
-            <li><a href="#">Help</a></li>
+            <li>
+              <a href="#">Help</a>
+              <ul>
+                <li>
+                  <a target="_blank" href="https://forms.gle/mKxza22VntsVvEvv8"
+                    >Feedback</a
+                  >
+                </li>
+                <li>
+                  <a target="_blank" href="https://github.com/zushiEdu"
+                    >Website</a
+                  >
+                </li>
+                <li>
+                  <a
+                    target="_blank"
+                    href="https://github.com/zushiEdu/circuit-layout-creator"
+                    >Contribute</a
+                  >
+                </li>
+              </ul>
+            </li>
           </ul>
         </nav>
       </div>
@@ -106,35 +208,7 @@
       </div>
 
       <div class="component-hierarchy">
-        <div class="property-window">
-          <table>
-            <tr>
-              <td>New Circuit</td>
-              <td>
-                <button><p>X</p></button>
-              </td>
-            </tr>
-            <tr>
-              <td>Name</td>
-              <td><input type="text" id="val_01" /></td>
-            </tr>
-            <tr>
-              <td>Description</td>
-              <td><input type="text" id="val_02" /></td>
-            </tr>
-            <tr>
-              <td>Author</td>
-              <td><input type="text" id="val_02" /></td>
-            </tr>
-            <tr>
-              <td>
-                <button style="float: left">
-                  <p>Create</p>
-                </button>
-              </td>
-            </tr>
-          </table>
-        </div>
+        <div class="property-window"></div>
       </div>
 
       <div class="footerL">
@@ -157,6 +231,6 @@
       </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>

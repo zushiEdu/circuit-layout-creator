@@ -1,76 +1,12 @@
-class child {
-    constructor(type, name) {
-        this.type = type;
-        this.name = name;
-    }
-}
-
-class circuit {
-    constructor(circuitProperty, components, traces) {
-        this.circuitProperty = circuitProperty;
-        this.components = components;
-        this.traces = traces;
-    }
-
-    addComponent(component) {
-        this.components.push(component);
-    }
-}
-
-class pin {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class component {
-    constructor(componentProperty, children) {
-        this.componentProperty = componentProperty;
-        this.children = children;
-    }
-
-    addChild(child) {
-        this.children.push(child);
-    }
-}
-
-class componentProperties {
-    constructor(height, width, name, type, value, colors, pins, rotation, layer) {
-        this.height = height;
-        this.width = width;
-        this.name = name;
-        this.colors = colors;
-        this.value = value;
-        this.type = type;
-        this.pins = pins;
-        this.rotation = rotation;
-        this.layer = layer;
-    }
-}
-
-class circuitProperties {
-    constructor(name, description, author, doc, dole) {
-        this.name = name;
-        this.description = description;
-        this.author = author;
-        this.doc = doc;
-        this.dole = dole;
-    }
-}
-
-class trace {
-    constructor(pin1, pin2) {
-        this.pin1 = pin1;
-        this.pin2 = pin2;
-    }
-}
-
-function rgb(r, g, b) {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-}
+import { builtinComponents } from "./modules/builtinComponents.js";
+import { child } from "./modules/child.js";
+import { circuit } from "./modules/circuit.js";
+import { circuitProperties } from "./modules/circuitProperties.js";
+import { component } from "./modules/component.js";
+import { componentProperties } from "./modules/componentProperties.js";
+import { pin } from "./modules/pin.js";
+import { rgb } from "./modules/rgb.js";
+import { trace } from "./modules/trace.js";
 
 const canvas = document.getElementById("canvas");
 const painter = canvas.getContext("2d");
@@ -81,29 +17,86 @@ const traceToggleDisplay = document.getElementById("trace-toggle");
 const connectorToggleDisplay = document.getElementById("connector-toggle");
 const componentToggleDisplay = document.getElementById("component-toggle");
 
-const height = window.innerHeight - 40;
-const width = window.innerWidth * 0.75;
+window.newComponent = newComponent;
+window.importData = importData;
+window.saveOpenedCircuit = saveOpenedCircuit;
+window.closeCircuits = closeCircuits;
+window.setup = setup;
+window.newCircuit = newCircuit;
+window.openCircuitMenu = openCircuitMenu;
+window.closeCircuitMenu = closeCircuitMenu;
+window.toggleLayer = toggleLayer;
+
+const height = window.outerHeight;
+const width = window.innerWidth;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
 
-var testBoard = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(6, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null), new component(new componentProperties(1, 1, `555 Chip`, `ic-4b4`, null, [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], [new pin(1, 2), new pin(2, 2), new pin(3, 2), new pin(4, 2), new pin(1, 5), new pin(2, 5), new pin(3, 5), new pin(4, 5)], 0, 4), null), new component(new componentProperties(1, 1, `Capacitor`, `capacitor-polarized`, `10uF`, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(5, 1), new pin(5, 3)], 0, 4), null), new component(new componentProperties(1, 1, `Pot`, `resistor-pot`, `1k`, [new rgb(0, 0, 255), new rgb(255, 255, 255)], [new pin(5, 4), new pin(5, 5), new pin(5, 6)], 0, 4), null), new component(new componentProperties(1, 2, `Header`, `header-female`, null, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(1, 6),], 0, 4))], [new trace(new pin(1, 1), new pin(1, 2))])
+var windowElements = [];
 
-var openedCircuit = testBoard;
+var selectedElementIndex = 0;
+var highlightSelected = false;
+
+// var testBoard = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(6, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null), new component(new componentProperties(1, 1, `555 Chip`, `ic-4b4`, null, [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], [new pin(1, 2), new pin(2, 2), new pin(3, 2), new pin(4, 2), new pin(1, 5), new pin(2, 5), new pin(3, 5), new pin(4, 5)], 0, 4), null), new component(new componentProperties(1, 1, `Capacitor`, `capacitor-polarized`, `10uF`, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(5, 1), new pin(5, 3)], 0, 4), null), new component(new componentProperties(1, 1, `Pot`, `resistor-pot`, `1k`, [new rgb(0, 0, 255), new rgb(255, 255, 255)], [new pin(5, 4), new pin(5, 5), new pin(5, 6)], 0, 4), null), new component(new componentProperties(1, 2, `Header`, `header-female`, null, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(1, 6), new pin(2, 6)], 0, 4))], [new trace(new pin(1, 1), new pin(1, 2))])
+
+var openedCircuit = null;
+
+var l1 = [];
+var l2 = [];
+var l3 = [];
+var l4 = [];
 
 painter.canvas.width = width;
 painter.canvas.height = height;
 
 function setup() {
     clearGrid();
+
     calcualtedZoom = defaultGridSize * zoom.value;
 
     if (zoom.value >= 1) {
         canvas.width = width * zoom.value;
         canvas.height = height * zoom.value;
     }
-    drawGrid(0, 0, width * zoom.value, height * zoom.value, calcualtedZoom, new rgb(51, 51, 51));
-    drawCircuit(openedCircuit);
+    if (openedCircuit != null) {
+        drawGrid(0, 0, width * zoom.value, height * zoom.value, calcualtedZoom, new rgb(51, 51, 51));
+        drawCircuit(openedCircuit);
+    }
+}
+
+function newComponent(componentType) {
+    for (var i = 0; i < builtinComponents.length; i++) {
+        if (componentType == builtinComponents[i].type) {
+            const c = builtinComponents[i];
+            if (openedCircuit != null) {
+                openedCircuit.addComponent(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer), null))
+            }
+        }
+    }
+    setup();
+}
+
+function newCircuit() {
+    const circuitName = document.getElementById("circuitName").value;
+    const circuitDescription = document.getElementById("circuitDescription").value;
+    const circuitAuthor = document.getElementById("circuitAuthor").value;
+
+    var name = circuitName;
+    var description = circuitDescription;
+    var author = circuitAuthor;
+
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    var day = date.getDate();
+    if (month < 10)
+        month = '0' + month;
+    if (day < 10)
+        day = '0' + day;
+    var formattedDate = `${year}-${month}-${day}`;
+    openedCircuit = new circuit(new circuitProperties(name, description, author, formattedDate, formattedDate), [], []);
+    setup();
 }
 
 var results;
@@ -137,19 +130,16 @@ function saveVariableToFile(variable, saveName) {
 }
 
 function saveOpenedCircuit() {
-    var fileName = openedCircuit.circuitProperty.name.toLowerCase().replace(" ", "-");
-    saveVariableToFile(openedCircuit, fileName);
+    if (openedCircuit != null) {
+        var fileName = openedCircuit.circuitProperty.name.toLowerCase().replace(" ", "-");
+        saveVariableToFile(openedCircuit, fileName);
+    }
 }
 
 function closeCircuits() {
     openedCircuit = null;
     setup();
 }
-
-var l1 = [];
-var l2 = [];
-var l3 = [];
-var l4 = [];
 
 var layerToggles = [true, true, true, true];
 
@@ -188,15 +178,11 @@ function layerOne() {
         painter.globalAlpha = 1;
     }
     for (var i = 0; i < l1.length; i++) {
-        if (l1[i].pins.length > 1) {
-            var centerPoint = averagePinPos(c.pins);
-        } else {
-            var centerPoint = new pin(1, 1);
-        }
+        var centerPoint = averagePinPos(l1[i].pins);
         drawType(l1[i].type, l1[i].colors, l1[i].width, l1[i].height, centerPoint.x, centerPoint.y, l1[i].rotation);
     }
 
-    setTimeout(layerTwo, 100 * zoom.value);
+    setTimeout(layerTwo, 50 * zoom.value);
 }
 
 // put traces on this layer
@@ -210,7 +196,7 @@ function layerTwo() {
         drawConnection(l2[i].pin1.x, l2[i].pin1.y, l2[i].pin2.x, l2[i].pin2.y, new rgb(0, 0, 0));
     }
 
-    setTimeout(layerThree, 100 * zoom.value);
+    setTimeout(layerThree, 50 * zoom.value);
 }
 
 // put component pins on this layer
@@ -233,7 +219,7 @@ function layerThree() {
         }
     }
 
-    setTimeout(layerFour, 100 * zoom.value);
+    setTimeout(layerFour, 50 * zoom.value);
 }
 
 // put components on this layer
@@ -247,6 +233,8 @@ function layerFour() {
         var centerPoint = averagePinPos(l4[i].pins);
         drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation);
     }
+
+    setTimeout(highlightComponent, 50 * zoom.value);
 }
 
 function drawPin(posX, posY, color) {
@@ -258,6 +246,10 @@ function drawPin(posX, posY, color) {
 }
 
 function drawCircuit(selectedCircuit) {
+    l1 = [];
+    l2 = [];
+    l3 = [];
+    l4 = [];
     if (selectedCircuit != null) {
         for (var i = 0; i < selectedCircuit.components.length; i++) {
             var c = selectedCircuit.components[i].componentProperty;
@@ -298,6 +290,16 @@ function averagePinPos(pins) {
     return averagePin;
 }
 
+function highlightComponent() {
+    if (highlightSelected) {
+        var c = openedCircuit.components[selectedElementIndex].componentProperty;
+        var center = averagePinPos(c.pins);
+        painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
+        drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0));
+        painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
+    }
+}
+
 function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
     type = "instructions/" + type.replace("-", "/") + ".txt";
     fetch(type)
@@ -307,56 +309,52 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
             // Check For Lines Instruction
             for (var line = 0; line < lines.length; line++) {
                 var instruction = lines[line].split(" ");
+                painter.transform(1, 0, 0, 1, (posX + (gridX / 2)) * calcualtedZoom, (posY + (gridY / 2)) * calcualtedZoom);
+                painter.rotate(degToRad(rotation));
                 switch (instruction[0]) {
                     case "C":
-                        for (var y = 0; y < gridY; y++) {
-                            for (var x = 0; x < gridX; x++) {
+                        for (var y = -(gridY / 2); y < gridY / 2; y++) {
+                            for (var x = -(gridX / 2); x < gridX / 2; x++) {
                                 // Defines Circle Properties
-                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
-                                painter.rotate(degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, (x + 0.5) * calcualtedZoom, (y + 0.5) * calcualtedZoom);
                                 drawCircle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
-                                painter.rotate(-degToRad(rotation));
-                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                                painter.transform(1, 0, 0, 1, -(x + 0.5) * calcualtedZoom, -(y + 0.5) * calcualtedZoom);
                             }
                         }
                         break;
                     case "R":
-                        for (var y = 0; y < gridY; y++) {
-                            for (var x = 0; x < gridX; x++) {
+                        for (var y = -(gridY / 2); y < gridY / 2; y++) {
+                            for (var x = -(gridX / 2); x < gridX / 2; x++) {
                                 // Defines Circle Properties
-                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
-                                painter.rotate(degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, (x + 0.5) * calcualtedZoom, (y + 0.5) * calcualtedZoom);
                                 drawRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
-                                painter.rotate(-degToRad(rotation));
-                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                                painter.transform(1, 0, 0, 1, -(x + 0.5) * calcualtedZoom, -(y + 0.5) * calcualtedZoom);
                             }
                         }
                         break;
                     case "RR":
-                        for (var y = 0; y < gridY; y++) {
-                            for (var x = 0; x < gridX; x++) {
+                        for (var y = -(gridY / 2); y < gridY / 2; y++) {
+                            for (var x = -(gridX / 2); x < gridX / 2; x++) {
                                 // Defines Circle Properties
-                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
-                                painter.rotate(degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, (x + 0.5) * calcualtedZoom, (y + 0.5) * calcualtedZoom);
                                 drawRoundedRectangle(parseFloat(instruction[1]) * calcualtedZoom, parseFloat(instruction[2]) * calcualtedZoom, parseFloat(instruction[3]) * calcualtedZoom, parseFloat(instruction[4]) * calcualtedZoom, colors[parseInt(instruction[5])]);
-                                painter.rotate(-degToRad(rotation));
-                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                                painter.transform(1, 0, 0, 1, -(x + 0.5) * calcualtedZoom, -(y + 0.5) * calcualtedZoom);
                             }
                         }
                         break;
                     case "Text":
-                        for (var y = 0; y < gridY; y++) {
-                            for (var x = 0; x < gridX; x++) {
+                        for (var y = -(gridY / 2); y < gridY / 2; y++) {
+                            for (var x = -(gridX / 2); x < gridX / 2; x++) {
                                 // Defines Circle Properties
-                                painter.transform(1, 0, 0, 1, (x + posX + 0.5) * calcualtedZoom, (y + posY + 0.5) * calcualtedZoom);
-                                painter.rotate(degToRad(rotation));
+                                painter.transform(1, 0, 0, 1, (x + 0.5) * calcualtedZoom, (y + 0.5) * calcualtedZoom);
                                 paintText(instruction[1] * calcualtedZoom, instruction[2] * calcualtedZoom, instruction[3], colors[parseInt(instruction[4])]);
-                                painter.rotate(-degToRad(rotation));
-                                painter.transform(1, 0, 0, 1, -(x + posX + 0.5) * calcualtedZoom, -(y + posY + 0.5) * calcualtedZoom);
+                                painter.transform(1, 0, 0, 1, -(x + 0.5) * calcualtedZoom, -(y + 0.5) * calcualtedZoom);
                             }
                         }
                         break;
                 }
+                painter.rotate(-degToRad(rotation));
+                painter.transform(1, 0, 0, 1, -(posX + (gridX / 2)) * calcualtedZoom, -(posY + (gridY / 2)) * calcualtedZoom);
             }
         });
 }
@@ -392,6 +390,24 @@ function drawCircle(tX, tY, bX, bY, color) {
     painter.ellipse(midX - (0.5 * calcualtedZoom), midY - (0.5 * calcualtedZoom), width, height, 0, 0, 360);
     painter.fill();
     painter.closePath();
+}
+
+function drawCircleHollow(tX, tY, bX, bY, color) {
+    var width = (bX - tX) / 2;
+    var height = (bY - tY) / 2;
+
+    var midX = (bX + tX) / 2;
+    var midY = (bY + tY) / 2;
+
+    painter.lineWidth = 3;
+
+    painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.beginPath();
+    painter.ellipse(midX - (0.5 * calcualtedZoom), midY - (0.5 * calcualtedZoom), width, height, 0, 0, 360);
+    painter.stroke();
+    painter.closePath();
+
+    painter.lineWidth = 1;
 }
 
 function drawRectangle(tX, tY, bX, bY, color) {
@@ -458,7 +474,17 @@ for (i = 0; i < coll.length; i++) {
     });
 }
 
-//Scrolable Content
+// New Circuit Menu
+const circuitWindow = document.querySelector('.newCircuitWindow');
+function closeCircuitMenu() {
+    circuitWindow.style.display = "none";
+}
+
+function openCircuitMenu() {
+    circuitWindow.style.display = "block";
+}
+
+//S crolable Content
 const slider = document.querySelector('.content');
 let isDown = false;
 let startX;
@@ -495,5 +521,68 @@ slider.addEventListener('mousemove', (e) => {
     slider.scrollLeft = scrollLeft - walkX;
     slider.scrollTop = scrollTop - walkY;
 });
+
+// Key Input
+function input(key) {
+    switch (key) {
+        case "ArrowUp":
+            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+            setup();
+            break;
+        case "ArrowDown":
+            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+            setup();
+            break;
+        case "ArrowRight":
+            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+            setup();
+            break;
+        case "ArrowLeft":
+            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+            setup();
+            break;
+        case "]":
+            if (selectedElementIndex + 1 == openedCircuit.components.length) {
+                selectedElementIndex = 0;
+            } else {
+                selectedElementIndex++;
+            }
+            setup();
+            break;
+        case "[":
+            if (selectedElementIndex == 0) {
+                selectedElementIndex = openedCircuit.components.length - 1;
+            } else {
+                selectedElementIndex--;
+            }
+            setup();
+            break;
+        case "h":
+            highlightSelected = !highlightSelected;
+            setup();
+            break;
+        case "r":
+            openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+            setup();
+            break;
+    }
+}
+
+document.addEventListener(
+    "keydown",
+    (event) => {
+        var name = event.key;
+        input(name);
+    },
+    false
+);
+
+function moveComponent(componentProperty, offsetX, offsetY) {
+    var newPins = [];
+    for (var i = 0; i < componentProperty.pins.length; i++) {
+        newPins.push(new pin(componentProperty.pins[i].x + offsetX, componentProperty.pins[i].y + offsetY));
+    }
+    return newPins;
+}
 
 setup();

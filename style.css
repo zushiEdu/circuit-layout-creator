@@ -74,10 +74,12 @@
   border-top:1px solid #3C3836 ;
 }
 
-.property-window{
-  margin: 10px;
-  padding: 5px;
-  border: 1px solid #bda36c;
+.newCircuitWindow{
+  float:inline-end;
+  border: 1px solid #d5c4a1;
+  margin:10px;
+  bottom: 0;
+  display: none;
 }
 
 button{
