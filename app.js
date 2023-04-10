@@ -26,6 +26,7 @@ window.newCircuit = newCircuit;
 window.openCircuitMenu = openCircuitMenu;
 window.closeCircuitMenu = closeCircuitMenu;
 window.toggleLayer = toggleLayer;
+window.newTrace = newTrace;
 
 const height = window.outerHeight;
 const width = window.innerWidth;
@@ -36,7 +37,14 @@ var calcualtedZoom = defaultGridSize * zoom.value;
 var windowElements = [];
 
 var selectedElementIndex = 0;
-var highlightSelected = false;
+var selectedTracePinIndex = 0;
+var selectedTraceIndex = 0;
+
+
+// Highlighted Display
+const highlightedDisplay = document.querySelector('.modeDisplay');
+var highlightSelected = "Comps";
+highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
 
 // var testBoard = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(6, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null), new component(new componentProperties(1, 1, `555 Chip`, `ic-4b4`, null, [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], [new pin(1, 2), new pin(2, 2), new pin(3, 2), new pin(4, 2), new pin(1, 5), new pin(2, 5), new pin(3, 5), new pin(4, 5)], 0, 4), null), new component(new componentProperties(1, 1, `Capacitor`, `capacitor-polarized`, `10uF`, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(5, 1), new pin(5, 3)], 0, 4), null), new component(new componentProperties(1, 1, `Pot`, `resistor-pot`, `1k`, [new rgb(0, 0, 255), new rgb(255, 255, 255)], [new pin(5, 4), new pin(5, 5), new pin(5, 6)], 0, 4), null), new component(new componentProperties(1, 2, `Header`, `header-female`, null, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(1, 6), new pin(2, 6)], 0, 4))], [new trace(new pin(1, 1), new pin(1, 2))])
 
@@ -66,13 +74,20 @@ function setup() {
 }
 
 function newComponent(componentType) {
-    for (var i = 0; i < builtinComponents.length; i++) {
-        if (componentType == builtinComponents[i].type) {
-            const c = builtinComponents[i];
-            if (openedCircuit != null) {
-                openedCircuit.addComponent(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer), null))
+    if (openedCircuit != null) {
+        for (var i = 0; i < builtinComponents.length; i++) {
+            if (componentType == builtinComponents[i].type) {
+                const c = builtinComponents[i];
+                openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer), null));
             }
         }
+    }
+    setup();
+}
+
+function newTrace() {
+    if (openedCircuit != null) {
+        openedCircuit.traces.push(new trace(new pin(1, 1), new pin(2, 1)));
     }
     setup();
 }
@@ -121,6 +136,9 @@ function importData() {
 }
 
 function saveVariableToFile(variable, saveName) {
+    if (saveName == "") {
+        saveName = "untitled";
+    }
     var thingToSave = JSON.stringify(variable);
     var hiddenElement = document.createElement("a");
     hiddenElement.href = "data:attachment/text," + encodeURI(thingToSave);
@@ -291,12 +309,25 @@ function averagePinPos(pins) {
 }
 
 function highlightComponent() {
-    if (highlightSelected) {
-        var c = openedCircuit.components[selectedElementIndex].componentProperty;
-        var center = averagePinPos(c.pins);
-        painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
-        drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0));
-        painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
+    if (openedCircuit.components.length != 0) {
+        if (highlightSelected == "Comps") {
+            var c = openedCircuit.components[selectedElementIndex].componentProperty;
+            var center = averagePinPos(c.pins);
+            painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
+            drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0));
+            painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
+        } else if (highlightSelected == "Traces") {
+            var c = openedCircuit.traces[selectedTraceIndex];
+            if (selectedTracePinIndex == 0) {
+                painter.transform(1, 0, 0, 1, (c.pin1.x) * calcualtedZoom, (c.pin1.y) * calcualtedZoom);
+                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
+                painter.transform(1, 0, 0, 1, -(c.pin1.x) * calcualtedZoom, -(c.pin1.y) * calcualtedZoom);
+            } else if (selectedTracePinIndex = 1) {
+                painter.transform(1, 0, 0, 1, (c.pin2.x) * calcualtedZoom, (c.pin2.y) * calcualtedZoom);
+                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
+                painter.transform(1, 0, 0, 1, -(c.pin2.x) * calcualtedZoom, -(c.pin2.y) * calcualtedZoom);
+            }
+        }
     }
 }
 
@@ -526,43 +557,124 @@ slider.addEventListener('mousemove', (e) => {
 function input(key) {
     switch (key) {
         case "ArrowUp":
-            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+            if (highlightSelected == "Comps") {
+                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex == 0) {
+                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
+                } else if (selectedTracePinIndex == 1) {
+                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, -1);
+                }
+            }
             setup();
             break;
         case "ArrowDown":
-            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+            if (highlightSelected == "Comps") {
+                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex == 0) {
+                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
+                } else if (selectedTracePinIndex == 1) {
+                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, 1);
+                }
+            }
             setup();
             break;
         case "ArrowRight":
-            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+            if (highlightSelected == "Comps") {
+                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex == 0) {
+                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
+                } else if (selectedTracePinIndex == 1) {
+                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 1, 0);
+                }
+            }
             setup();
             break;
         case "ArrowLeft":
-            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+            if (highlightSelected == "Comps") {
+                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex == 0) {
+                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
+                } else if (selectedTracePinIndex == 1) {
+                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, -1, 0);
+                }
+            }
             setup();
             break;
         case "]":
-            if (selectedElementIndex + 1 == openedCircuit.components.length) {
-                selectedElementIndex = 0;
-            } else {
-                selectedElementIndex++;
+            if (highlightSelected == "Comps") {
+                if (selectedElementIndex + 1 == openedCircuit.components.length) {
+                    selectedElementIndex = 0;
+                } else {
+                    selectedElementIndex++;
+                }
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex + 1 == 2) {
+                    selectedTracePinIndex = 0;
+                } else {
+                    selectedTracePinIndex++;
+                }
             }
             setup();
             break;
         case "[":
-            if (selectedElementIndex == 0) {
-                selectedElementIndex = openedCircuit.components.length - 1;
-            } else {
-                selectedElementIndex--;
+            if (highlightSelected == "Comps") {
+                if (selectedElementIndex == 0) {
+                    selectedElementIndex = openedCircuit.components.length - 1;
+                } else {
+                    selectedElementIndex--;
+                }
+            } else if (highlightSelected == "Traces") {
+                if (selectedTracePinIndex == 0) {
+                    selectedTracePinIndex = 1
+                } else {
+                    selectedTracePinIndex--;
+                }
+            }
+            setup();
+            break;
+        case "=":
+            if (highlightSelected == "Traces") {
+                if (selectedTraceIndex + 1 == openedCircuit.traces.length) {
+                    selectedTraceIndex = 0;
+                } else {
+                    selectedTraceIndex++;
+                }
+            }
+            setup();
+            break;
+        case "-":
+            if (highlightSelected == "Traces") {
+                if (selectedTraceIndex == 0) {
+                    selectedTraceIndex = openedCircuit.traces.length - 1;
+                } else {
+                    selectedTraceIndex--;
+                }
             }
             setup();
             break;
         case "h":
-            highlightSelected = !highlightSelected;
+            switch (highlightSelected) {
+                case "None":
+                    highlightSelected = "Comps";
+                    break;
+                case "Comps":
+                    highlightSelected = "Traces";
+                    break;
+                case "Traces":
+                    highlightSelected = "None";
+                    break;
+            }
+            highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
             setup();
             break;
         case "r":
-            openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+            if (highlightSelected == "Comps") {
+                openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+            }
             setup();
             break;
     }
@@ -583,6 +695,11 @@ function moveComponent(componentProperty, offsetX, offsetY) {
         newPins.push(new pin(componentProperty.pins[i].x + offsetX, componentProperty.pins[i].y + offsetY));
     }
     return newPins;
+}
+
+function movePin(oldPin, offsetX, offsetY) {
+    var newPin = new pin(oldPin.x + offsetX, oldPin.y + offsetY);
+    return newPin;
 }
 
 setup();
