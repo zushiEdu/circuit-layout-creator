@@ -89,6 +89,11 @@
                 <a onclick="newComponent(`resistor-pot`)">Potentiometer</a>
               </li>
             </div>
+            <!--Traces-->
+            <li>
+              <img src="/Images/folder-icon.png" />
+              <a onclick="newTrace()" href="#">New Trace</a>
+            </li>
             <!--End of New Component List-->
           </div>
         </ul>
@@ -123,6 +128,108 @@
             </tr>
           </table>
         </div>
+        <div class="componentPropertyEditor">
+          <table>
+            <caption>
+              Component Properties
+            </caption>
+            <tr>
+              <td>Name</td>
+              <td><input type="text" id="componentName" /></td>
+            </tr>
+            <tr>
+              <td>TileX</td>
+              <td><input type="text" id="tileX" /></td>
+            </tr>
+            <tr>
+              <td>TileY</td>
+              <td><input type="text" id="tileY" /></td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="applyComponentEdits()" style="float: left">
+                  <p>Apply</p>
+                </button>
+              </td>
+              <td>
+                <button onclick="deleteElement()" style="float: left">
+                  <p>Delete</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="circuitPropertyEditor">
+          <table>
+            <caption>
+              Circuit Properties
+            </caption>
+            <tr>
+              <td>Name</td>
+              <td>
+                <input value="" type="text" id="circuitNameInput" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="applyCircuitEdits()" style="float: left">
+                  <p>Apply</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="exportWindow">
+          <table>
+            <caption>
+              Export to PNG
+            </caption>
+            <tr>
+              <td>X1</td>
+              <td>
+                <input
+                  value="0"
+                  type="text"
+                  id="exportX1"
+                  onchange="updateExportPreview()"
+                />
+              </td>
+              <td>Y1</td>
+              <td>
+                <input
+                  value="0"
+                  type="text"
+                  id="exportY1"
+                  onchange="updateExportPreview()"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>X2</td>
+              <td>
+                <input
+                  value="11"
+                  type="text"
+                  id="exportX2"
+                  onchange="updateExportPreview()"
+                />
+              </td>
+              <td>Y2</td>
+              <td>
+                <input value="11" type="text" id="exportY2" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="exportArea()" style="float: left">
+                  <p>Apply</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <div class="content">
@@ -137,15 +244,27 @@
               <ul>
                 <li><a onclick="openCircuitMenu()" href="#">New</a></li>
                 <li><a onclick="importData()" href="#">Open</a></li>
+                <li><a onclick="openExportWindow()" href="#">Export</a></li>
                 <li><a onclick="saveOpenedCircuit()" href="#">Save</a></li>
                 <li><a onclick="closeCircuits()" href="#">Close</a></li>
               </ul>
             </li>
 
             <!--
-              <li><a href="#">Edit</a></li>
               <li><a href="#">Config</a></li>
             -->
+
+            <li>
+              <a href="#">Edit</a>
+              <ul>
+                <li>
+                  <a onclick="modifyComponent()" href="#">Modify Component</a>
+                </li>
+                <li>
+                  <a onclick="modifyCircuit()" href="#">Modify Circuit</a>
+                </li>
+              </ul>
+            </li>
 
             <li>
               <a href="#">Layers</a>
@@ -207,16 +326,14 @@
         <input type="text" placeholder="Search..." />
       </div>
 
-      <div class="component-hierarchy">
-        <div class="property-window"></div>
-      </div>
+      <div style="overflow: scroll" class="component-hierarchy"></div>
 
       <div class="footerL">
-        <p>4</p>
+        <p class="modeDisplay">Highlighted: Comps</p>
       </div>
 
       <div class="footerR">
-        <p>5</p>
+        <p class="elementCounter">0 Elements</p>
       </div>
 
       <div class="view-content">

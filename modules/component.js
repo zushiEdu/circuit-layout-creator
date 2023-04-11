@@ -1,12 +1,7 @@
 export const name = "component"
 
 export class component {
-    constructor(componentProperty, children) {
+    constructor(componentProperty) {
         this.componentProperty = componentProperty;
-        this.children = children;
-    }
-
-    addChild(child) {
-        this.children.push(child);
     }
 }
