@@ -1,5 +1,4 @@
 import { builtinComponents } from "./modules/builtinComponents.js";
-import { child } from "./modules/child.js";
 import { circuit } from "./modules/circuit.js";
 import { circuitProperties } from "./modules/circuitProperties.js";
 import { component } from "./modules/component.js";
@@ -27,6 +26,15 @@ window.openCircuitMenu = openCircuitMenu;
 window.closeCircuitMenu = closeCircuitMenu;
 window.toggleLayer = toggleLayer;
 window.newTrace = newTrace;
+window.selectComponent = selectComponent;
+window.modifyComponent = modifyComponent;
+window.modifyCircuit = modifyCircuit;
+window.applyComponentEdits = applyComponentEdits;
+window.applyCircuitEdits = applyCircuitEdits;
+window.deleteElement = deleteElement;
+window.openExportWindow = openExportWindow;
+window.updateExportPreview = updateExportPreview;
+window.exportArea = exportArea;
 
 const height = window.outerHeight;
 const width = window.innerWidth;
@@ -37,6 +45,7 @@ var calcualtedZoom = defaultGridSize * zoom.value;
 var windowElements = [];
 
 var selectedElementIndex = 0;
+var selectedElementPinIndex = 0;
 var selectedTracePinIndex = 0;
 var selectedTraceIndex = 0;
 
@@ -45,8 +54,6 @@ var selectedTraceIndex = 0;
 const highlightedDisplay = document.querySelector('.modeDisplay');
 var highlightSelected = "Comps";
 highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
-
-// var testBoard = new circuit(new circuitProperties("Led Board", "Led Simply On", "Ethan Huber", "2023-04-04", "2023-04-04"), [new component(new componentProperties(6, 5, `Base Board`, `board-perf`, null, [new rgb(175, 135, 63), new rgb(232, 177, 137), new rgb(29, 32, 33)], [new pin(1, 1)], 0, 1), new child("diode-led", "LED1")), new component(new componentProperties(1, 1, `LED1`, `diode-led`, null, [new rgb(255, 0, 0), new rgb(100, 100, 100)], [new pin(1, 1), new pin(3, 1)], 0, 4), null), new component(new componentProperties(1, 1, `555 Chip`, `ic-4b4`, null, [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], [new pin(1, 2), new pin(2, 2), new pin(3, 2), new pin(4, 2), new pin(1, 5), new pin(2, 5), new pin(3, 5), new pin(4, 5)], 0, 4), null), new component(new componentProperties(1, 1, `Capacitor`, `capacitor-polarized`, `10uF`, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(5, 1), new pin(5, 3)], 0, 4), null), new component(new componentProperties(1, 1, `Pot`, `resistor-pot`, `1k`, [new rgb(0, 0, 255), new rgb(255, 255, 255)], [new pin(5, 4), new pin(5, 5), new pin(5, 6)], 0, 4), null), new component(new componentProperties(1, 2, `Header`, `header-female`, null, [new rgb(50, 50, 50), new rgb(150, 150, 150)], [new pin(1, 6), new pin(2, 6)], 0, 4))], [new trace(new pin(1, 1), new pin(1, 2))])
 
 var openedCircuit = null;
 
@@ -69,8 +76,30 @@ function setup() {
     }
     if (openedCircuit != null) {
         drawGrid(0, 0, width * zoom.value, height * zoom.value, calcualtedZoom, new rgb(51, 51, 51));
+        calculateComponentAngle();
         drawCircuit(openedCircuit);
+        updateHiearchy();
+        updateElementCount();
     }
+}
+
+const hiearchyDiv = document.querySelector(".component-hierarchy");
+function updateHiearchy() {
+    hiearchyDiv.innerHTML = null;
+    for (var i = 0; i < openedCircuit.components.length; i++) {
+        var textElement = document.createElement("a");
+        textElement.setAttribute("onclick", `selectComponent(${i})`);
+        var text = openedCircuit.components[i].componentProperty.name;
+        var node = document.createTextNode(text);
+        textElement.appendChild(node);
+        hiearchyDiv.appendChild(textElement);
+    }
+}
+
+function selectComponent(i) {
+    highlightSelected = "Comps";
+    selectedElementIndex = i;
+    setup();
 }
 
 function newComponent(componentType) {
@@ -111,10 +140,78 @@ function newCircuit() {
         day = '0' + day;
     var formattedDate = `${year}-${month}-${day}`;
     openedCircuit = new circuit(new circuitProperties(name, description, author, formattedDate, formattedDate), [], []);
+    closeCircuitMenu();
     setup();
 }
 
-var results;
+function updateElementCount() {
+    if (openedCircuit != null) {
+        const elementCount = document.querySelector('.elementCounter');
+        if (openedCircuit.components.length == 1) {
+            elementCount.innerText = openedCircuit.components.length + " Element";
+        } else {
+            elementCount.innerText = openedCircuit.components.length + " Elements";
+        }
+    }
+}
+
+const modifyComponentForm = document.querySelector(".componentPropertyEditor");
+const nameForm = document.getElementById("componentName");
+const tileXForm = document.getElementById("tileX");
+const tileYForm = document.getElementById("tileY");
+function modifyComponent() {
+    if (openedCircuit != null) {
+        if (openedCircuit.components.length != 0) {
+            modifyComponentForm.style.display = "block";
+            var c = openedCircuit.components[selectedElementIndex].componentProperty;
+
+            nameForm.value = c.name;
+            tileXForm.value = c.width;
+            tileYForm.value = c.height;
+        }
+    }
+}
+
+function applyComponentEdits() {
+    if (openedCircuit != null) {
+        var c = openedCircuit.components[selectedElementIndex].componentProperty;
+        var newComponentProperties = new componentProperties(parseInt(tileYForm.value), parseInt(tileXForm.value), nameForm.value, c.type, c.value, c.colors, c.pins, c.rotation, c.layer);
+        openedCircuit.components[selectedElementIndex].componentProperty = newComponentProperties;
+        modifyComponentForm.style.display = "none";
+        setup();
+    }
+}
+
+function deleteElement() {
+    if (highlightSelected = "Comps") {
+        openedCircuit.components.splice(selectedElementIndex, 1);
+    }
+    modifyComponentForm.style.display = "none";
+    setup();
+}
+
+const modifyCircuitForm = document.querySelector(".circuitPropertyEditor");
+const circuitNameInput = document.querySelector("#circuitNameInput");
+function modifyCircuit() {
+    if (openedCircuit != null) {
+        modifyCircuitForm.style.display = "block";
+
+        var name = openedCircuit.circuitProperty.name;
+        if (name == "" || name == null || name == " ") {
+            name = "untitled";
+        }
+
+        circuitNameInput.value = name;
+    }
+}
+
+function applyCircuitEdits() {
+    if (openedCircuit != null) {
+        openedCircuit.circuitProperty.name = circuitNameInput.value;
+        modifyCircuitForm.style.display = "none";
+    }
+}
+
 function importData() {
     var element = document.createElement('div');
     element.innerHTML = '<input type="file">';
@@ -316,19 +413,92 @@ function highlightComponent() {
             painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
             drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0));
             painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
+            var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
+            if (p.length == 2) {
+                painter.transform(1, 0, 0, 1, (p[selectedElementPinIndex].x) * calcualtedZoom, (p[selectedElementPinIndex].y) * calcualtedZoom);
+                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
+                painter.transform(1, 0, 0, 1, -(p[selectedElementPinIndex].x) * calcualtedZoom, -(p[selectedElementPinIndex].y) * calcualtedZoom);
+            }
         } else if (highlightSelected == "Traces") {
-            var c = openedCircuit.traces[selectedTraceIndex];
-            if (selectedTracePinIndex == 0) {
-                painter.transform(1, 0, 0, 1, (c.pin1.x) * calcualtedZoom, (c.pin1.y) * calcualtedZoom);
-                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
-                painter.transform(1, 0, 0, 1, -(c.pin1.x) * calcualtedZoom, -(c.pin1.y) * calcualtedZoom);
-            } else if (selectedTracePinIndex = 1) {
-                painter.transform(1, 0, 0, 1, (c.pin2.x) * calcualtedZoom, (c.pin2.y) * calcualtedZoom);
-                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
-                painter.transform(1, 0, 0, 1, -(c.pin2.x) * calcualtedZoom, -(c.pin2.y) * calcualtedZoom);
+            if (openedCircuit.traces.length != 0) {
+                var c = openedCircuit.traces[selectedTraceIndex];
+                if (selectedTracePinIndex == 0) {
+                    painter.transform(1, 0, 0, 1, (c.pin1.x) * calcualtedZoom, (c.pin1.y) * calcualtedZoom);
+                    drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
+                    painter.transform(1, 0, 0, 1, -(c.pin1.x) * calcualtedZoom, -(c.pin1.y) * calcualtedZoom);
+                } else if (selectedTracePinIndex = 1) {
+                    painter.transform(1, 0, 0, 1, (c.pin2.x) * calcualtedZoom, (c.pin2.y) * calcualtedZoom);
+                    drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0));
+                    painter.transform(1, 0, 0, 1, -(c.pin2.x) * calcualtedZoom, -(c.pin2.y) * calcualtedZoom);
+                }
             }
         }
     }
+}
+
+const exportWindow = document.querySelector(".exportWindow");
+const exportX1 = document.querySelector("#exportX1");
+const exportX2 = document.querySelector("#exportX2");
+const exportY1 = document.querySelector("#exportY1");
+const exportY2 = document.querySelector("#exportY2");
+
+function openExportWindow() {
+    exportWindow.style.display = "block";
+    updateExportPreview();
+}
+
+var UL = new pin(parseInt(exportX1.value) * calcualtedZoom, parseInt(exportY1.value) * calcualtedZoom);
+var BR = new pin(parseInt(exportX2.value) * calcualtedZoom, parseInt(exportY2.value) * calcualtedZoom);
+function updateExportPreview() {
+    if (exportWindow.style.display == "block") {
+        setup();
+        drawRectangleHollow(UL.x, UL.y, BR.x, BR.y, new rgb(0, 0, 255));
+    }
+}
+
+function exportArea() {
+    var oldMode = highlightSelected;
+    highlightSelected = "None";
+    setup();
+    setTimeout(finalExport, 100);
+    highlightSelected = oldMode;
+}
+
+var cWidth = BR.x - UL.x;
+var cHeight = BR.y - UL.y;
+
+function finalExport() {
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = cWidth;
+    croppedCanvas.height = cHeight;
+    const croppedCanvasContext = croppedCanvas.getContext('2d');
+    croppedCanvasContext.drawImage(canvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    var link = document.createElement('a');
+    link.download = 'export.png';
+    link.href = croppedCanvas.toDataURL('image/png');
+    link.click();
+}
+
+function calculateComponentAngle() {
+    if (openedCircuit.components.length >= 1) {
+        if (highlightSelected == "Comps") {
+            if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
+                var deltaX = p[1].x - p[0].x;
+                var deltaY = p[1].y - p[0].y;
+
+                var ratio = deltaX / deltaY;
+
+                var angle = radToDeg(Math.atan(ratio));
+
+                openedCircuit.components[selectedElementIndex].componentProperty.rotation = 90 - angle;
+            }
+        }
+    }
+}
+
+function radToDeg(rad) {
+    return rad * (180 / Math.PI);
 }
 
 function drawType(type, colors, gridX, gridY, posX, posY, rotation) {
@@ -435,6 +605,21 @@ function drawCircleHollow(tX, tY, bX, bY, color) {
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
     painter.ellipse(midX - (0.5 * calcualtedZoom), midY - (0.5 * calcualtedZoom), width, height, 0, 0, 360);
+    painter.stroke();
+    painter.closePath();
+
+    painter.lineWidth = 1;
+}
+
+function drawRectangleHollow(tX, tY, bX, bY, color) {
+    var width = bX - tX;
+    var height = bY - tY;
+
+    painter.lineWidth = 3;
+
+    painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
+    painter.beginPath();
+    painter.rect(tX, tY, width, height);
     painter.stroke();
     painter.closePath();
 
@@ -558,7 +743,11 @@ function input(key) {
     switch (key) {
         case "ArrowUp":
             if (highlightSelected == "Comps") {
-                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, -1);
+                } else {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+                }
             } else if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex == 0) {
                     openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
@@ -570,7 +759,11 @@ function input(key) {
             break;
         case "ArrowDown":
             if (highlightSelected == "Comps") {
-                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, 1);
+                } else {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+                }
             } else if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex == 0) {
                     openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
@@ -582,7 +775,11 @@ function input(key) {
             break;
         case "ArrowRight":
             if (highlightSelected == "Comps") {
-                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 1, 0);
+                } else {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+                }
             } else if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex == 0) {
                     openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
@@ -594,7 +791,11 @@ function input(key) {
             break;
         case "ArrowLeft":
             if (highlightSelected == "Comps") {
-                openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], -1, 0);
+                } else {
+                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+                }
             } else if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex == 0) {
                     openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
@@ -605,33 +806,37 @@ function input(key) {
             setup();
             break;
         case "]":
-            if (highlightSelected == "Comps") {
-                if (selectedElementIndex + 1 == openedCircuit.components.length) {
-                    selectedElementIndex = 0;
-                } else {
-                    selectedElementIndex++;
-                }
-            } else if (highlightSelected == "Traces") {
+            if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex + 1 == 2) {
                     selectedTracePinIndex = 0;
                 } else {
                     selectedTracePinIndex++;
                 }
+            } else if (highlightSelected == "Comps") {
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    if (selectedElementPinIndex + 1 == 2) {
+                        selectedElementPinIndex = 0;
+                    } else {
+                        selectedElementPinIndex++;
+                    }
+                }
             }
             setup();
             break;
         case "[":
-            if (highlightSelected == "Comps") {
-                if (selectedElementIndex == 0) {
-                    selectedElementIndex = openedCircuit.components.length - 1;
-                } else {
-                    selectedElementIndex--;
-                }
-            } else if (highlightSelected == "Traces") {
+            if (highlightSelected == "Traces") {
                 if (selectedTracePinIndex == 0) {
                     selectedTracePinIndex = 1
                 } else {
                     selectedTracePinIndex--;
+                }
+            } else if (highlightSelected == "Comps") {
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    if (selectedElementPinIndex == 0) {
+                        selectedElementPinIndex = openedCircuit.components[selectedElementIndex].circuitProperty.pins.length - 1;
+                    } else {
+                        selectedElementPinIndex--;
+                    }
                 }
             }
             setup();
@@ -643,6 +848,12 @@ function input(key) {
                 } else {
                     selectedTraceIndex++;
                 }
+            } else if (highlightSelected == "Comps") {
+                if (selectedElementIndex + 1 == openedCircuit.components.length) {
+                    selectedElementIndex = 0;
+                } else {
+                    selectedElementIndex++;
+                }
             }
             setup();
             break;
@@ -653,10 +864,16 @@ function input(key) {
                 } else {
                     selectedTraceIndex--;
                 }
+            } else if (highlightSelected == "Comps") {
+                if (selectedElementIndex == 0) {
+                    selectedElementIndex = openedCircuit.components.length - 1;
+                } else {
+                    selectedElementIndex--;
+                }
             }
             setup();
             break;
-        case "h":
+        case "p":
             switch (highlightSelected) {
                 case "None":
                     highlightSelected = "Comps";
@@ -670,10 +887,13 @@ function input(key) {
             }
             highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
             setup();
+            updateExportPreview();
             break;
         case "r":
             if (highlightSelected == "Comps") {
-                openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
+                    openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                }
             }
             setup();
             break;
@@ -698,8 +918,7 @@ function moveComponent(componentProperty, offsetX, offsetY) {
 }
 
 function movePin(oldPin, offsetX, offsetY) {
-    var newPin = new pin(oldPin.x + offsetX, oldPin.y + offsetY);
-    return newPin;
+    return new pin(oldPin.x + offsetX, oldPin.y + offsetY);
 }
 
 setup();

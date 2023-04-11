@@ -82,6 +82,30 @@
   display: none;
 }
 
+.componentPropertyEditor{
+  float:inline-end;
+  border: 1px solid #d5c4a1;
+  margin:10px;
+  bottom: 0;
+  display: none;
+}
+
+.circuitPropertyEditor{
+  float:inline-end;
+  border: 1px solid #d5c4a1;
+  margin:10px;
+  bottom: 0;
+  display: none;
+}
+
+.exportWindow{
+  float:inline-end;
+  border: 1px solid #d5c4a1;
+  margin:10px;
+  bottom: 0;
+  display: none;
+}
+
 button{
   float:right;
   background-color:#424242;
@@ -96,7 +120,7 @@ body{
   overflow: hidden;
 }
 
-p, td {
+p, td, caption{
   color:#d5c4a1;
   margin: 0;
 }
@@ -135,6 +159,10 @@ html{
 
 a{
   white-space: nowrap;
+  padding: 0 14px;
+  text-decoration: none;
+  color: #d5c4a1;
+  display: block;
 }
 
 /* Menu Bar Start*/
@@ -227,10 +255,10 @@ nav ul li:hover ul {
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {  width: 10px; height: 10px;}
-::-webkit-scrollbar{ background-color: #424242;}
-::-webkit-scrollbar-track {  background: #424242; }
-::-webkit-scrollbar-thumb { background: #666;}
-::-webkit-scrollbar-thumb:hover {  background: #333;}
-::-webkit-scrollbar-corner {background-color: #424242;}
-::-webkit-scrollbar-button:hover {  background: #666;}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar{ background-color: #424242; }
+::-webkit-scrollbar-track { background: #424242; }
+::-webkit-scrollbar-thumb { background: #666; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
+::-webkit-scrollbar-corner { background-color: #424242; }
+::-webkit-scrollbar-button:hover { background: #666; }
