@@ -97,6 +97,30 @@ const perfBoard = {
     pins: [new pin(1, 1)],
 }
 
+const capacitorDefault = {
+    height: 1,
+    width: 1,
+    type: "capacitor-default",
+    name: "Ceramic Capacitor",
+    value: "10uF",
+    colors: [new rgb(204, 134, 40)],
+    rotation: 0,
+    layer: 4,
+    pins: [new pin(1, 1), new pin(2, 1)],
+}
+
+const resistorPhoto = {
+    height: 1,
+    width: 1,
+    type: "resistor-photo",
+    name: "Photo Resistor",
+    value: null,
+    colors: [new rgb(206, 52, 4), new rgb(183, 175, 167)],
+    rotation: 0,
+    layer: 4,
+    pins: [new pin(1, 1), new pin(3, 1)],
+}
+
 export const name = "builtinComponents";
 export const builtinComponents = [
     polarizedCapacitor,
@@ -106,5 +130,7 @@ export const builtinComponents = [
     headerFemale,
     headerMale,
     diodeLed,
-    perfBoard
+    perfBoard,
+    capacitorDefault,
+    resistorPhoto,
 ]

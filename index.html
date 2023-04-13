@@ -36,6 +36,10 @@
                 <img src="/Images/folder-icon.png" />
                 <a onclick="newComponent(`capacitor-polarized`)">Polarized</a>
               </li>
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`capacitor-default`)">Default</a>
+              </li>
             </div>
             <!--Diodes-->
             <li class="collapsible">
@@ -87,6 +91,10 @@
               <li>
                 <img src="/Images/folder-icon.png" />
                 <a onclick="newComponent(`resistor-pot`)">Potentiometer</a>
+              </li>
+              <li>
+                <img src="/Images/folder-icon.png" />
+                <a onclick="newComponent(`resistor-photo`)">Photo Resistor</a>
               </li>
             </div>
             <!--Traces-->
@@ -233,7 +241,12 @@
       </div>
 
       <div class="content">
-        <canvas id="canvas"></canvas>
+        <canvas id="highlight-layer"></canvas>
+        <canvas id="component-layer"></canvas>
+        <canvas id="connector-layer"></canvas>
+        <canvas id="trace-layer"></canvas>
+        <canvas id="board-layer"></canvas>
+        <canvas id="grid-layer"></canvas>
       </div>
 
       <div class="bar">
