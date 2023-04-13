@@ -1,7 +1,7 @@
 .container {  
   display: grid;
   grid-template-columns: 0.4fr 2fr 0.4fr;
-  grid-template-rows: 20px 2.8fr 20px;
+  grid-template-rows: 2.5vh 95vh 2.5vh;
   gap: 0px 0px;
   grid-auto-flow: row;
   grid-template-areas:
@@ -22,6 +22,8 @@
   background-color: #1D2021;
   overflow:scroll;
   cursor:pointer;
+  position:relative;
+  width: 100%;
 }
 
 .content.active {
@@ -115,7 +117,6 @@ button{
 body{
   margin: 0;
   background-color: #1D2021;
-  display: flex;
   height: 100vh;
   overflow: hidden;
 }
@@ -128,6 +129,31 @@ p, td, caption{
 canvas{
   image-rendering: pixelated; 
   image-rendering: crisp-edges;
+  position: absolute;
+}
+
+#grid-layer{
+  z-index: 1;
+}
+
+#board-layer{
+  z-index: 2;
+}
+
+#trace-layer{
+  z-index:3;
+}
+
+#connector-layer{
+  z-index:4;
+}
+
+#component-layer{
+  z-index:5;
+}
+
+#highlight-layer{
+  z-index:6;
 }
 
 select{
@@ -174,6 +200,7 @@ nav p{
 
 nav ul{
   display: inline;
+  z-index: 10;
 }
 
 /* List Position */
