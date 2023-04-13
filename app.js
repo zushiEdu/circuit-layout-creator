@@ -422,18 +422,22 @@ function averagePinPos(pins) {
 }
 
 function highlightComponent(painter) {
-    if (openedCircuit.components.length != 0) {
+    if (openedCircuit != null) {
         if (highlightSelected == "Comps") {
-            var c = openedCircuit.components[selectedElementIndex].componentProperty;
-            var center = averagePinPos(c.pins);
-            painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
-            drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0), highlightPainter);
-            painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
-            var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
-            if (p.length == 2) {
-                painter.transform(1, 0, 0, 1, (p[selectedElementPinIndex].x) * calcualtedZoom, (p[selectedElementPinIndex].y) * calcualtedZoom);
-                drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0), highlightPainter);
-                painter.transform(1, 0, 0, 1, -(p[selectedElementPinIndex].x) * calcualtedZoom, -(p[selectedElementPinIndex].y) * calcualtedZoom);
+            if (openedCircuit.components.length != 0) {
+                if (openedCircuit.components[selectedElementIndex] != null) {
+                    var c = openedCircuit.components[selectedElementIndex].componentProperty;
+                    var center = averagePinPos(c.pins);
+                    painter.transform(1, 0, 0, 1, (center.x) * calcualtedZoom, (center.y) * calcualtedZoom);
+                    drawCircleHollow(0, 0, (c.width + 1) * calcualtedZoom, (c.height + 1) * calcualtedZoom, new rgb(0, 255, 0), highlightPainter);
+                    painter.transform(1, 0, 0, 1, -(center.x) * calcualtedZoom, -(center.y) * calcualtedZoom);
+                    var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
+                    if (p.length == 2) {
+                        painter.transform(1, 0, 0, 1, (p[selectedElementPinIndex].x) * calcualtedZoom, (p[selectedElementPinIndex].y) * calcualtedZoom);
+                        drawCircleHollow(0.5, 0.5, 2 * calcualtedZoom, 2 * calcualtedZoom, new rgb(255, 0, 0), highlightPainter);
+                        painter.transform(1, 0, 0, 1, -(p[selectedElementPinIndex].x) * calcualtedZoom, -(p[selectedElementPinIndex].y) * calcualtedZoom);
+                    }
+                }
             }
         } else if (highlightSelected == "Traces") {
             if (openedCircuit.traces.length != 0) {
@@ -498,16 +502,18 @@ function finalExport() {
 function calculateComponentAngle() {
     if (openedCircuit.components.length >= 1) {
         if (highlightSelected == "Comps") {
-            if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
-                var deltaX = p[1].x - p[0].x;
-                var deltaY = p[1].y - p[0].y;
+            if (openedCircuit.components[selectedElementIndex] != null) {
+                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                    var p = openedCircuit.components[selectedElementIndex].componentProperty.pins;
+                    var deltaX = p[1].x - p[0].x;
+                    var deltaY = p[1].y - p[0].y;
 
-                var ratio = deltaX / deltaY;
+                    var ratio = deltaX / deltaY;
 
-                var angle = radToDeg(Math.atan(ratio));
+                    var angle = radToDeg(Math.atan(ratio));
 
-                openedCircuit.components[selectedElementIndex].componentProperty.rotation = 90 - angle;
+                    openedCircuit.components[selectedElementIndex].componentProperty.rotation = 90 - angle;
+                }
             }
         }
     }
@@ -756,7 +762,6 @@ slider.addEventListener('mousemove', (e) => {
 
 // Key Input
 function input(key) {
-    console.log(key);
     switch (key) {
         case "ArrowUp":
             if (highlightSelected == "Comps") {
@@ -830,11 +835,13 @@ function input(key) {
                     selectedTracePinIndex++;
                 }
             } else if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    if (selectedElementPinIndex + 1 == 2) {
-                        selectedElementPinIndex = 0;
-                    } else {
-                        selectedElementPinIndex++;
+                if (openedCircuit.components[selectedElementIndex] != null) {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        if (selectedElementPinIndex + 1 == 2) {
+                            selectedElementPinIndex = 0;
+                        } else {
+                            selectedElementPinIndex++;
+                        }
                     }
                 }
             }
@@ -914,11 +921,13 @@ function input(key) {
             }
             setup();
             break;
-        case "Backspace":
+        case "Delete":
             if (highlightSelected == "Traces") {
                 openedCircuit.traces.splice(selectedTraceIndex, 1);
+                selectedTraceIndex = 0;
             } else if (highlightSelected == "Comps") {
                 openedCircuit.components.splice(selectedElementIndex, 1);
+                selectedElementIndex = 0;
             }
             setup();
             break;
