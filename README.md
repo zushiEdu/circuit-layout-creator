@@ -17,3 +17,6 @@ The key Backspace will delete the selected element wether that be a Component or
 ## Future Steps
 As more feedback is given through the form on the help section of the app or through peers, the app will get more user friendly. 
 Please feel free to discuss about this project or submit feedback!
+
+## Contributors
+- Ethan Huber
