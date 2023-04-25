@@ -764,65 +764,73 @@ slider.addEventListener('mousemove', (e) => {
 function input(key) {
     switch (key) {
         case "ArrowUp":
-            if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, -1);
-                } else {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
-                }
-            } else if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex == 0) {
-                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
-                } else if (selectedTracePinIndex == 1) {
-                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, -1);
+            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, -1);
+                    } else {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+                    }
+                } else if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex == 0) {
+                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
+                    } else if (selectedTracePinIndex == 1) {
+                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, -1);
+                    }
                 }
             }
             setup();
             break;
         case "ArrowDown":
-            if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, 1);
-                } else {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
-                }
-            } else if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex == 0) {
-                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
-                } else if (selectedTracePinIndex == 1) {
-                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, 1);
+            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, 1);
+                    } else {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+                    }
+                } else if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex == 0) {
+                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
+                    } else if (selectedTracePinIndex == 1) {
+                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, 1);
+                    }
                 }
             }
             setup();
             break;
         case "ArrowRight":
-            if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 1, 0);
-                } else {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
-                }
-            } else if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex == 0) {
-                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
-                } else if (selectedTracePinIndex == 1) {
-                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 1, 0);
+            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 1, 0);
+                    } else {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+                    }
+                } else if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex == 0) {
+                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
+                    } else if (selectedTracePinIndex == 1) {
+                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 1, 0);
+                    }
                 }
             }
             setup();
             break;
         case "ArrowLeft":
-            if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], -1, 0);
-                } else {
-                    openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
-                }
-            } else if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex == 0) {
-                    openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
-                } else if (selectedTracePinIndex == 1) {
-                    openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, -1, 0);
+            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], -1, 0);
+                    } else {
+                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+                    }
+                } else if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex == 0) {
+                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
+                    } else if (selectedTracePinIndex == 1) {
+                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, -1, 0);
+                    }
                 }
             }
             setup();
@@ -938,10 +946,10 @@ document.addEventListener(
     "keydown",
     (event) => {
         var name = event.key;
-        input(name);
-        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(event.code) > -1) {
+        if (name == "ArrowLeft" || name == "ArrowRight" || name == "ArrowDown" || name == "ArrowUp") {
             event.preventDefault();
         }
+        input(name);
     },
     false
 );
