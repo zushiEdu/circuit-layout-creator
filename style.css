@@ -198,6 +198,10 @@ nav p{
   padding: 0 10px;
 }
 
+nav ul li {
+  z-index: 11;
+}
+
 nav ul{
   display: inline;
   z-index: 10;
