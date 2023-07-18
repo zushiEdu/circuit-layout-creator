@@ -76,7 +76,7 @@
   border-top:1px solid #3C3836 ;
 }
 
-.newCircuitWindow{
+.newCircuit{
   float:inline-end;
   border: 1px solid #d5c4a1;
   margin:10px;
@@ -84,7 +84,7 @@
   display: none;
 }
 
-.componentPropertyEditor{
+.componentProperties{
   float:inline-end;
   border: 1px solid #d5c4a1;
   margin:10px;
@@ -92,7 +92,7 @@
   display: none;
 }
 
-.circuitPropertyEditor{
+.circuitProperties{
   float:inline-end;
   border: 1px solid #d5c4a1;
   margin:10px;
@@ -100,7 +100,7 @@
   display: none;
 }
 
-.exportWindow{
+.exportToPNG{
   float:inline-end;
   border: 1px solid #d5c4a1;
   margin:10px;

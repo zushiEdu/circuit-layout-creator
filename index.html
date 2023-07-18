@@ -105,12 +105,13 @@
             <!--End of New Component List-->
           </div>
         </ul>
-        <div class="newCircuitWindow">
+
+        <div class="newCircuit">
           <table>
             <tr>
               <td>New Circuit</td>
               <td>
-                <button onclick="closeCircuitMenu()" id="newCircuitWindowClose">
+                <button onclick="toggleMenu(`newCircuit`)">
                   <p>X</p>
                 </button>
               </td>
@@ -136,22 +137,28 @@
             </tr>
           </table>
         </div>
-        <div class="componentPropertyEditor">
+
+        <div class="componentProperties">
           <table>
-            <caption>
-              Component Properties
-            </caption>
+            <tr>
+              <td colspan="2">Component Properties</td>
+              <td>
+                <button onclick="toggleMenu(`componentProperties`)">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
             <tr>
               <td>Name</td>
-              <td><input type="text" id="componentName" /></td>
+              <td colspan="2"><input type="text" id="componentName" /></td>
             </tr>
             <tr>
               <td>TileX</td>
-              <td><input type="text" id="tileX" /></td>
+              <td colspan="2"><input type="text" id="tileX" /></td>
             </tr>
             <tr>
               <td>TileY</td>
-              <td><input type="text" id="tileY" /></td>
+              <td colspan="2"><input type="text" id="tileY" /></td>
             </tr>
             <tr>
               <td>
@@ -168,14 +175,19 @@
           </table>
         </div>
 
-        <div class="circuitPropertyEditor">
+        <div class="circuitProperties">
           <table>
-            <caption>
-              Circuit Properties
-            </caption>
+            <tr>
+              <td colspan="2">Circuit Properties</td>
+              <td>
+                <button onclick="toggleMenu(`circuitProperties`)">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
             <tr>
               <td>Name</td>
-              <td>
+              <td colspan="2">
                 <input value="" type="text" id="circuitNameInput" />
               </td>
             </tr>
@@ -185,15 +197,25 @@
                   <p>Apply</p>
                 </button>
               </td>
+              <td>
+                <button onclick="closeCircuits()" style="float: left">
+                  <p>Close</p>
+                </button>
+              </td>
             </tr>
           </table>
         </div>
 
-        <div class="exportWindow">
+        <div class="exportToPNG">
           <table>
-            <caption>
-              Export to PNG
-            </caption>
+            <tr>
+              <td colspan="3">Export to PNG</td>
+              <td>
+                <button onclick="toggleMenu(`exportToPNG`)">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
             <tr>
               <td>X1</td>
               <td>
@@ -255,9 +277,13 @@
             <li>
               <a href="#">File</a>
               <ul>
-                <li><a onclick="openCircuitMenu()" href="#">New</a></li>
+                <li>
+                  <a onclick="toggleMenu(`newCircuit`)" href="#">New</a>
+                </li>
                 <li><a onclick="importData()" href="#">Open</a></li>
-                <li><a onclick="openExportWindow()" href="#">Export</a></li>
+                <li>
+                  <a onclick="toggleMenu(`exportToPNG`)" href="#">Export</a>
+                </li>
                 <li><a onclick="saveOpenedCircuit()" href="#">Save</a></li>
                 <li><a onclick="closeCircuits()" href="#">Close</a></li>
               </ul>
@@ -271,10 +297,14 @@
               <a href="#">Edit</a>
               <ul>
                 <li>
-                  <a onclick="modifyComponent()" href="#">Modify Component</a>
+                  <a onclick="toggleMenu(`componentProperties`)" href="#"
+                    >Modify Component</a
+                  >
                 </li>
                 <li>
-                  <a onclick="modifyCircuit()" href="#">Modify Circuit</a>
+                  <a onclick="toggleMenu(`circuitProperties`)" href="#"
+                    >Modify Circuit</a
+                  >
                 </li>
               </ul>
             </li>

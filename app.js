@@ -45,8 +45,6 @@ window.saveOpenedCircuit = saveOpenedCircuit;
 window.closeCircuits = closeCircuits;
 window.setup = setup;
 window.newCircuit = newCircuit;
-window.openCircuitMenu = openCircuitMenu;
-window.closeCircuitMenu = closeCircuitMenu;
 window.toggleLayer = toggleLayer;
 window.newTrace = newTrace;
 window.selectComponent = selectComponent;
@@ -58,11 +56,10 @@ window.deleteElement = deleteElement;
 window.openExportWindow = openExportWindow;
 window.updateExportPreview = updateExportPreview;
 window.exportArea = exportArea;
+window.toggleMenu = toggleMenu;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
-
-var windowElements = [];
 
 var selectedElementIndex = 0;
 var selectedElementPinIndex = 0;
@@ -159,7 +156,7 @@ function newCircuit() {
         day = '0' + day;
     var formattedDate = `${year}-${month}-${day}`;
     openedCircuit = new circuit(new circuitProperties(name, description, author, formattedDate, formattedDate), [], []);
-    closeCircuitMenu();
+    toggleMenu(`newCircuit`);
     setup();
 }
 
@@ -174,16 +171,12 @@ function updateElementCount() {
     }
 }
 
-const modifyComponentForm = document.querySelector(".componentPropertyEditor");
 const nameForm = document.getElementById("componentName");
 const tileXForm = document.getElementById("tileX");
 const tileYForm = document.getElementById("tileY");
 function modifyComponent() {
     if (openedCircuit != null) {
         if (openedCircuit.components.length != 0) {
-            modifyComponentForm.style.display = "block";
-            var c = openedCircuit.components[selectedElementIndex].componentProperty;
-
             nameForm.value = c.name;
             tileXForm.value = c.width;
             tileYForm.value = c.height;
@@ -209,7 +202,7 @@ function deleteElement() {
     setup();
 }
 
-const modifyCircuitForm = document.querySelector(".circuitPropertyEditor");
+const modifyCircuitForm = document.querySelector(".circuitProperties");
 const circuitNameInput = document.querySelector("#circuitNameInput");
 function modifyCircuit() {
     if (openedCircuit != null) {
@@ -456,7 +449,7 @@ function highlightComponent(painter) {
     }
 }
 
-const exportWindow = document.querySelector(".exportWindow");
+const exportWindow = document.querySelector(".exportToPNG");
 const exportX1 = document.querySelector("#exportX1");
 const exportX2 = document.querySelector("#exportX2");
 const exportY1 = document.querySelector("#exportY1");
@@ -712,17 +705,31 @@ for (i = 0; i < coll.length; i++) {
     });
 }
 
-// New Circuit Menu
-const circuitWindow = document.querySelector('.newCircuitWindow');
-function closeCircuitMenu() {
-    circuitWindow.style.display = "none";
+var menuToggles = {
+    "newCircuit": false,
+    "componentProperties": false,
+    "circuitProperties": false,
+    "exportToPNG": false
+};
+
+function toggleMenu(menuID) {
+    const window = document.querySelector(`.${menuID}`)
+    for (var i = 0; i < Object.keys(menuToggles).length; i++) {
+        if (Object.keys(menuToggles)[i] == menuID) {
+            if (Object.values(menuToggles)[i]) {
+                // disable menu
+                menuToggles[menuID] = false;
+                window.style.display = "none";
+            } else {
+                // enable menu
+                menuToggles[menuID] = true;
+                window.style.display = "block";
+            }
+        }
+    }
 }
 
-function openCircuitMenu() {
-    circuitWindow.style.display = "block";
-}
-
-//S crolable Content
+//Scrolable Content
 const slider = document.querySelector('.content');
 let isDown = false;
 let startX;
