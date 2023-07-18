@@ -45,30 +45,25 @@ window.saveOpenedCircuit = saveOpenedCircuit;
 window.closeCircuits = closeCircuits;
 window.setup = setup;
 window.newCircuit = newCircuit;
-window.openCircuitMenu = openCircuitMenu;
-window.closeCircuitMenu = closeCircuitMenu;
 window.toggleLayer = toggleLayer;
 window.newTrace = newTrace;
 window.selectComponent = selectComponent;
-window.modifyComponent = modifyComponent;
-window.modifyCircuit = modifyCircuit;
 window.applyComponentEdits = applyComponentEdits;
 window.applyCircuitEdits = applyCircuitEdits;
 window.deleteElement = deleteElement;
-window.openExportWindow = openExportWindow;
 window.updateExportPreview = updateExportPreview;
 window.exportArea = exportArea;
+window.toggleMenu = toggleMenu;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
-
-var windowElements = [];
 
 var selectedElementIndex = 0;
 var selectedElementPinIndex = 0;
 var selectedTracePinIndex = 0;
 var selectedTraceIndex = 0;
 
+var disabledAlpha = 0.25;
 
 // Highlighted Display
 const highlightedDisplay = document.querySelector('.modeDisplay');
@@ -83,6 +78,21 @@ var l3 = [];
 var l4 = [];
 
 function setup() {
+    refreshCanvas();
+
+    if (openedCircuit != null) {
+        updateHiearchy();
+        updateElementCount();
+        updateComponentDisplay();
+        updateCircuitDisplay();
+        updateExportPreview();
+    }
+}
+
+function refreshCanvas() {
+    for (var i = 0; i < painters.length; i++) {
+        clearCanvas(painters[i]);
+    }
     clearGrid(backgroundPainter);
 
     calcualtedZoom = defaultGridSize * zoom.value;
@@ -93,12 +103,11 @@ function setup() {
             canvases[i].height = height * zoom.value;
         }
     }
+
     if (openedCircuit != null) {
         drawGrid(0, 0, width * zoom.value, height * zoom.value, calcualtedZoom, new rgb(51, 51, 51), backgroundPainter);
         calculateComponentAngle();
         drawCircuit(openedCircuit);
-        updateHiearchy();
-        updateElementCount();
     }
 }
 
@@ -108,6 +117,7 @@ function updateHiearchy() {
     for (var i = 0; i < openedCircuit.components.length; i++) {
         var textElement = document.createElement("a");
         textElement.setAttribute("onclick", `selectComponent(${i})`);
+        textElement.style.borderBottom = "thin dashed #5A574C";
         var text = openedCircuit.components[i].componentProperty.name;
         var node = document.createTextNode(text);
         textElement.appendChild(node);
@@ -159,7 +169,7 @@ function newCircuit() {
         day = '0' + day;
     var formattedDate = `${year}-${month}-${day}`;
     openedCircuit = new circuit(new circuitProperties(name, description, author, formattedDate, formattedDate), [], []);
-    closeCircuitMenu();
+    toggleMenu(`newCircuit`);
     setup();
 }
 
@@ -174,16 +184,14 @@ function updateElementCount() {
     }
 }
 
-const modifyComponentForm = document.querySelector(".componentPropertyEditor");
+// call this when new circuit is created
 const nameForm = document.getElementById("componentName");
 const tileXForm = document.getElementById("tileX");
 const tileYForm = document.getElementById("tileY");
-function modifyComponent() {
+function updateComponentDisplay() {
     if (openedCircuit != null) {
         if (openedCircuit.components.length != 0) {
-            modifyComponentForm.style.display = "block";
             var c = openedCircuit.components[selectedElementIndex].componentProperty;
-
             nameForm.value = c.name;
             tileXForm.value = c.width;
             tileYForm.value = c.height;
@@ -191,30 +199,10 @@ function modifyComponent() {
     }
 }
 
-function applyComponentEdits() {
-    if (openedCircuit != null) {
-        var c = openedCircuit.components[selectedElementIndex].componentProperty;
-        var newComponentProperties = new componentProperties(parseInt(tileYForm.value), parseInt(tileXForm.value), nameForm.value, c.type, c.value, c.colors, c.pins, c.rotation, c.layer);
-        openedCircuit.components[selectedElementIndex].componentProperty = newComponentProperties;
-        modifyComponentForm.style.display = "none";
-        setup();
-    }
-}
-
-function deleteElement() {
-    if (highlightSelected = "Comps") {
-        openedCircuit.components.splice(selectedElementIndex, 1);
-    }
-    modifyComponentForm.style.display = "none";
-    setup();
-}
-
-const modifyCircuitForm = document.querySelector(".circuitPropertyEditor");
+// call this when new circuit is created
 const circuitNameInput = document.querySelector("#circuitNameInput");
-function modifyCircuit() {
+function updateCircuitDisplay() {
     if (openedCircuit != null) {
-        modifyCircuitForm.style.display = "block";
-
         var name = openedCircuit.circuitProperty.name;
         if (name == "" || name == null || name == " ") {
             name = "untitled";
@@ -224,10 +212,28 @@ function modifyCircuit() {
     }
 }
 
+function applyComponentEdits() {
+    if (openedCircuit != null) {
+        var c = openedCircuit.components[selectedElementIndex].componentProperty;
+        var newComponentProperties = new componentProperties(parseInt(tileYForm.value), parseInt(tileXForm.value), nameForm.value, c.type, c.value, c.colors, c.pins, c.rotation, c.layer);
+        openedCircuit.components[selectedElementIndex].componentProperty = newComponentProperties;
+        toggleMenu(`componentProperties`);
+        setup();
+    }
+}
+
+function deleteElement() {
+    if (highlightSelected = "Comps") {
+        openedCircuit.components.splice(selectedElementIndex, 1);
+    }
+    toggleMenu(`componentProperties`);
+    setup();
+}
+
 function applyCircuitEdits() {
     if (openedCircuit != null) {
         openedCircuit.circuitProperty.name = circuitNameInput.value;
-        modifyCircuitForm.style.display = "none";
+        toggleMenu(`circuitProperties`);
     }
 }
 
@@ -272,6 +278,7 @@ function saveOpenedCircuit() {
 
 function closeCircuits() {
     openedCircuit = null;
+    toggleMenu(`circuitProperties`);
     setup();
 }
 
@@ -307,7 +314,7 @@ function toggleLayer(toggleLayer) {
 // try to put boards on this layer
 function layerOne(painter) {
     if (!layerToggles[0]) {
-        painter.globalAlpha = 0.1;
+        painter.globalAlpha = disabledAlpha;
     } else {
         painter.globalAlpha = 1;
     }
@@ -320,7 +327,7 @@ function layerOne(painter) {
 // put traces on this layer
 function layerTwo(painter) {
     if (!layerToggles[1]) {
-        painter.globalAlpha = 0.1;
+        painter.globalAlpha = disabledAlpha;
     } else {
         painter.globalAlpha = 1;
     }
@@ -332,7 +339,7 @@ function layerTwo(painter) {
 // put component pins on this layer
 function layerThree(painter) {
     if (!layerToggles[2]) {
-        painter.globalAlpha = 0.1;
+        painter.globalAlpha = disabledAlpha;
     } else {
         painter.globalAlpha = 1;
     }
@@ -353,7 +360,7 @@ function layerThree(painter) {
 // put components on this layer
 function layerFour(painter) {
     if (!layerToggles[3]) {
-        painter.globalAlpha = 0.1;
+        painter.globalAlpha = disabledAlpha;
     } else {
         painter.globalAlpha = 1;
     }
@@ -456,22 +463,22 @@ function highlightComponent(painter) {
     }
 }
 
-const exportWindow = document.querySelector(".exportWindow");
+const exportWindow = document.querySelector(".exportToPNG");
 const exportX1 = document.querySelector("#exportX1");
 const exportX2 = document.querySelector("#exportX2");
 const exportY1 = document.querySelector("#exportY1");
 const exportY2 = document.querySelector("#exportY2");
 
-function openExportWindow() {
-    exportWindow.style.display = "block";
-    updateExportPreview();
-}
-
 var UL = new pin(parseInt(exportX1.value) * calcualtedZoom, parseInt(exportY1.value) * calcualtedZoom);
 var BR = new pin(parseInt(exportX2.value) * calcualtedZoom, parseInt(exportY2.value) * calcualtedZoom);
+
 function updateExportPreview() {
+    refreshCanvas();
+
+    UL = new pin(parseInt(exportX1.value) * calcualtedZoom, parseInt(exportY1.value) * calcualtedZoom);
+    BR = new pin(parseInt(exportX2.value) * calcualtedZoom, parseInt(exportY2.value) * calcualtedZoom);
+
     if (exportWindow.style.display == "block") {
-        setup();
         drawRectangleHollow(UL.x, UL.y, BR.x, BR.y, new rgb(0, 0, 255), highlightPainter);
     }
 }
@@ -480,19 +487,24 @@ function exportArea() {
     var oldMode = highlightSelected;
     highlightSelected = "None";
     setup();
-    setTimeout(finalExport, 200);
+    setTimeout(finalExport, 500);
     highlightSelected = oldMode;
 }
 
-var cWidth = BR.x - UL.x;
-var cHeight = BR.y - UL.y;
-
 function finalExport() {
+    UL = new pin(parseInt(exportX1.value) * calcualtedZoom, parseInt(exportY1.value) * calcualtedZoom);
+    BR = new pin(parseInt(exportX2.value) * calcualtedZoom, parseInt(exportY2.value) * calcualtedZoom);
+
+    var cWidth = BR.x - UL.x;
+    var cHeight = BR.y - UL.y;
+
     const croppedCanvas = document.createElement('canvas');
     croppedCanvas.width = cWidth;
     croppedCanvas.height = cHeight;
     const croppedCanvasContext = croppedCanvas.getContext('2d');
-    croppedCanvasContext.drawImage(canvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    for (var i = 3; i >= 0; i--) {
+        croppedCanvasContext.drawImage(canvases[i], UL.x, UL.y, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    }
     var link = document.createElement('a');
     link.download = 'export.png';
     link.href = croppedCanvas.toDataURL('image/png');
@@ -675,6 +687,10 @@ function clearGrid(painter) {
     painter.fillRect(0, 0, width, height);
 }
 
+function clearCanvas(painter) {
+    painter.clearRect(0, 0, width, height);
+}
+
 function drawGrid(ax, ay, bx, by, blockSize, color, painter) {
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     for (var x = ax; x <= bx; x = x + blockSize) {
@@ -712,17 +728,61 @@ for (i = 0; i < coll.length; i++) {
     });
 }
 
-// New Circuit Menu
-const circuitWindow = document.querySelector('.newCircuitWindow');
-function closeCircuitMenu() {
-    circuitWindow.style.display = "none";
+var menuToggles = {
+    "newCircuit": false,
+    "componentProperties": false,
+    "circuitProperties": false,
+    "exportToPNG": false
+};
+
+var circuitRequired = [
+    "componentProperties", "circuitProperties"
+]
+
+var componentRequired = [
+    "componentProperties"
+]
+
+function toggleMenu(menuID) {
+    const window = document.querySelector(`.${menuID}`)
+    var loadMenu = true;
+    for (var i = 0; i < circuitRequired.length; i++) {
+        if (menuID == circuitRequired[i]) {
+            // disable the loading of menu
+            if (openedCircuit == null) {
+                loadMenu = false;
+            }
+        }
+    }
+
+    for (var i = 0; i < componentRequired.length; i++) {
+        if (menuID == componentRequired[i]) {
+            // disable the loading of menu
+            if (openedCircuit.components.length == 0) {
+                loadMenu = false
+            }
+        }
+    }
+
+    for (var i = 0; i < Object.keys(menuToggles).length; i++) {
+        if (Object.keys(menuToggles)[i] == menuID) {
+            if (Object.values(menuToggles)[i]) {
+                // disable menu
+                menuToggles[menuID] = false;
+                window.style.display = "none";
+            } else {
+                if (loadMenu) {
+                    // enable menu
+                    menuToggles[menuID] = true;
+                    window.style.display = "block";
+                }
+            }
+        }
+    }
+    setup();
 }
 
-function openCircuitMenu() {
-    circuitWindow.style.display = "block";
-}
-
-//S crolable Content
+//Scrolable Content
 const slider = document.querySelector('.content');
 let isDown = false;
 let startX;
@@ -919,7 +979,6 @@ function input(key) {
             }
             highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
             setup();
-            updateExportPreview();
             break;
         case "r":
             if (highlightSelected == "Comps") {
