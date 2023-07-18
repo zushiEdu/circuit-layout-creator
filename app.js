@@ -90,6 +90,9 @@ function setup() {
 }
 
 function refreshCanvas() {
+    for (var i = 0; i < painters.length; i++) {
+        clearCanvas(painters[i]);
+    }
     clearGrid(backgroundPainter);
 
     calcualtedZoom = defaultGridSize * zoom.value;
@@ -682,6 +685,10 @@ function drawRoundedRectangle(tX, tY, bX, bY, color, painter) {
 function clearGrid(painter) {
     painter.fillStyle = `rgb(29,32,33)`;
     painter.fillRect(0, 0, width, height);
+}
+
+function clearCanvas(painter) {
+    painter.clearRect(0, 0, width, height);
 }
 
 function drawGrid(ax, ay, bx, by, blockSize, color, painter) {
