@@ -114,6 +114,7 @@ function updateHiearchy() {
     for (var i = 0; i < openedCircuit.components.length; i++) {
         var textElement = document.createElement("a");
         textElement.setAttribute("onclick", `selectComponent(${i})`);
+        textElement.style.borderBottom = "thin dashed #5A574C";
         var text = openedCircuit.components[i].componentProperty.name;
         var node = document.createTextNode(text);
         textElement.appendChild(node);
