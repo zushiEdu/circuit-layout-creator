@@ -17,7 +17,7 @@
 
             <!--Boards-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/board-icon.png" />
               <a href="#">Boards</a>
             </li>
             <div class="items">
@@ -28,7 +28,7 @@
             </div>
             <!--Capacitors-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/capacitor-icon.png" />
               <a href="#">Capacitors</a>
             </li>
             <div class="items">
@@ -43,7 +43,7 @@
             </div>
             <!--Diodes-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/led-icon.png" />
               <a href="#">Diodes & LEDs</a>
             </li>
             <div class="items">
@@ -54,7 +54,7 @@
             </div>
             <!--Headers-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/header-icon.png" />
               <a href="#">Headers</a>
             </li>
             <div class="items">
@@ -69,7 +69,7 @@
             </div>
             <!--Integrated Circuits-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/ic-icon.png" />
               <a href="#">ICs</a>
             </li>
             <div class="items">
@@ -80,7 +80,7 @@
             </div>
             <!--Resistors-->
             <li class="collapsible">
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/resistor-icon.png" />
               <a href="#">Resistors</a>
             </li>
             <div class="items">
@@ -99,7 +99,7 @@
             </div>
             <!--Traces-->
             <li>
-              <img src="/Images/folder-icon.png" />
+              <img src="/Images/trace-icon.png" />
               <a onclick="newTrace()" href="#">New Trace</a>
             </li>
             <!--End of New Component List-->
@@ -248,7 +248,12 @@
               </td>
               <td>Y2</td>
               <td>
-                <input value="11" type="text" id="exportY2" />
+                <input
+                  value="11"
+                  type="text"
+                  id="exportY2"
+                  onchange="updateExportPreview()"
+                />
               </td>
             </tr>
             <tr>
