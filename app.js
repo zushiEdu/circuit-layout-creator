@@ -366,6 +366,8 @@ function layerFour(painter) {
     }
     for (var i = 0; i < l4.length; i++) {
         var centerPoint = averagePinPos(l4[i].pins);
+        centerPoint.x -= (l4[i].width / 2) - 0.5;
+        centerPoint.y -= (l4[i].height / 2) - 0.5;
         drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation, painter);
     }
 }
@@ -502,8 +504,8 @@ function finalExport() {
     croppedCanvas.width = cWidth;
     croppedCanvas.height = cHeight;
     const croppedCanvasContext = croppedCanvas.getContext('2d');
-    for (var i = 3; i >= 0; i--) {
-        croppedCanvasContext.drawImage(canvases[i], UL.x, UL.y, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    for (var i = 4; i >= 0; i--) {
+        croppedCanvasContext.drawImage(canvases[i], UL.x - (calcualtedZoom * 0.5), UL.y - (calcualtedZoom * 0.5), cWidth, cHeight, 0, 0, cWidth, cHeight);
     }
     var link = document.createElement('a');
     link.download = 'export.png';
@@ -646,14 +648,14 @@ function drawCircleHollow(tX, tY, bX, bY, color, painter) {
 }
 
 function drawRectangleHollow(tX, tY, bX, bY, color, painter) {
-    var width = bX - tX;
-    var height = bY - tY;
+    var width = (bX - tX);
+    var height = (bY - tY);
 
     painter.lineWidth = 3;
 
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
-    painter.rect(tX, tY, width, height);
+    painter.rect(tX - (0.5 * calcualtedZoom), tY - (0.5 * calcualtedZoom), width, height);
     painter.stroke();
     painter.closePath();
 
@@ -661,8 +663,8 @@ function drawRectangleHollow(tX, tY, bX, bY, color, painter) {
 }
 
 function drawRectangle(tX, tY, bX, bY, color, painter) {
-    var width = bX - tX;
-    var height = bY - tY;
+    var width = (bX - tX);
+    var height = (bY - tY);
 
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
