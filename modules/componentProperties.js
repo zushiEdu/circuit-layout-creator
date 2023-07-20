@@ -1,5 +1,3 @@
-import { pin } from "./pin.js";
-
 export const name = "componentProperties";
 
 export class componentProperties {

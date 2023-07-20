@@ -136,7 +136,7 @@ function newComponent(componentType) {
         for (var i = 0; i < builtinComponents.length; i++) {
             if (componentType == builtinComponents[i].type) {
                 const c = builtinComponents[i];
-                openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer), null));
+                openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer)));
             }
         }
     }
@@ -984,8 +984,10 @@ function input(key) {
             break;
         case "r":
             if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                if (openedCircuit != null) {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                    }
                 }
             }
             setup();

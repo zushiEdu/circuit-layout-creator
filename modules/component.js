@@ -1,4 +1,4 @@
-export const name = "component"
+export const name = "component";
 
 export class component {
     constructor(componentProperty) {
