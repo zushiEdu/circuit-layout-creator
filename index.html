@@ -54,7 +54,7 @@
             </div>
             <!--Headers-->
             <li class="collapsible">
-              <img src="/Images/header-icon.png" />
+              <img src="/Images/male-header-icon.png" />
               <a href="#">Headers</a>
             </li>
             <div class="items">
@@ -69,13 +69,17 @@
             </div>
             <!--Integrated Circuits-->
             <li class="collapsible">
-              <img src="/Images/ic-icon.png" />
+              <img src="/Images/ic-4b4-icon.png" />
               <a href="#">ICs</a>
             </li>
             <div class="items">
               <li>
-                <img src="/Images/ic-icon.png" />
+                <img src="/Images/ic-4b4-icon.png" />
                 <a onclick="newComponent(`ic-4b4`)">4x4 IC</a>
+              </li>
+              <li>
+                <img src="/Images/ic-4b4-icon.png" />
+                <a onclick="newComponent(`ic-8b4`)">8x4 IC</a>
               </li>
             </div>
             <!--Resistors-->
@@ -159,6 +163,10 @@
             <tr>
               <td>TileY</td>
               <td colspan="2"><input type="text" id="tileY" /></td>
+            </tr>
+            <tr style="display: none" id="displayNameRow">
+              <td>Display</td>
+              <td colspan="2"><input type="text" id="displayName" /></td>
             </tr>
             <tr>
               <td>
@@ -392,6 +400,7 @@
           <option value="2">200%</option>
           <option value="2.5">250%</option>
           <option value="5">500%</option>
+          <option value="10">1000%</option>
         </select>
       </div>
     </div>

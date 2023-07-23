@@ -59,6 +59,23 @@ export class getBuiltinComponent {
                 rotation: 0,
                 layer: 4,
                 pins: [new pin(1, 1), new pin(2, 1), new pin(3, 1), new pin(4, 1), new pin(1, 4), new pin(2, 4), new pin(3, 4), new pin(4, 4)],
+                additionalDetails: {
+                    displayName: "555",
+                },
+            },
+            "ic-8b4": {
+                height: 1,
+                width: 1,
+                type: "ic-8b4",
+                name: "8x4",
+                value: null,
+                colors: [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)],
+                rotation: 0,
+                layer: 4,
+                pins: [new pin(1, 1), new pin(2, 1), new pin(3, 1), new pin(4, 1), new pin(5, 1), new pin(6, 1), new pin(7, 1), new pin(8, 1), new pin(1, 4), new pin(2, 4), new pin(3, 4), new pin(4, 4), new pin(5, 4), new pin(6, 4), new pin(7, 4), new pin(8, 4)],
+                additionalDetails: {
+                    displayName: "L293D",
+                },
             },
             "header-female": {
                 height: 1,
