@@ -1,4 +1,4 @@
-import { builtinComponents } from "./modules/builtinComponents.js";
+import { getBuiltinComponent } from "./modules/getBuiltinComponent.js";
 import { circuit } from "./modules/circuit.js";
 import { circuitProperties } from "./modules/circuitProperties.js";
 import { component } from "./modules/component.js";
@@ -133,12 +133,8 @@ function selectComponent(i) {
 
 function newComponent(componentType) {
     if (openedCircuit != null) {
-        for (var i = 0; i < builtinComponents.length; i++) {
-            if (componentType == builtinComponents[i].type) {
-                const c = builtinComponents[i];
-                openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer)));
-            }
-        }
+        var c = new getBuiltinComponent(componentType).getComponentProperty();
+        openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer)));
     }
     setup();
 }
