@@ -1,4 +1,4 @@
-import { builtinComponents } from "./modules/builtinComponents.js";
+import { getBuiltinComponent } from "./modules/getBuiltinComponent.js";
 import { circuit } from "./modules/circuit.js";
 import { circuitProperties } from "./modules/circuitProperties.js";
 import { component } from "./modules/component.js";
@@ -87,6 +87,9 @@ function setup() {
         updateCircuitDisplay();
         updateExportPreview();
     }
+
+    // use this to test out new components
+    //drawType("ic-8b4", [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], 1, 1, 10, 10, 0, painters[4], undefined);
 }
 
 function refreshCanvas() {
@@ -133,12 +136,8 @@ function selectComponent(i) {
 
 function newComponent(componentType) {
     if (openedCircuit != null) {
-        for (var i = 0; i < builtinComponents.length; i++) {
-            if (componentType == builtinComponents[i].type) {
-                const c = builtinComponents[i];
-                openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer), null));
-            }
-        }
+        var c = new getBuiltinComponent(componentType).getComponentProperty();
+        openedCircuit.components.push(new component(new componentProperties(c.height, c.width, c.name, c.type, c.value, c.colors, c.pins, c.rotation, c.layer, c.additionalDetails)));
     }
     setup();
 }
@@ -186,16 +185,43 @@ function updateElementCount() {
 
 // call this when new circuit is created
 const nameForm = document.getElementById("componentName");
+const displayNameRow = document.getElementById("displayNameRow");
+const displayNameForm = document.getElementById("displayName");
 const tileXForm = document.getElementById("tileX");
 const tileYForm = document.getElementById("tileY");
 function updateComponentDisplay() {
     if (openedCircuit != null) {
         if (openedCircuit.components.length != 0) {
             var c = openedCircuit.components[selectedElementIndex].componentProperty;
+
+            displayNameRow.style.display = "none";
+
+            if (c.additionalDetails != undefined) {
+                if (c.additionalDetails.hasOwnProperty(`displayName`)) {
+                    displayNameRow.style.display = "table-row";
+                    displayNameForm.value = c.additionalDetails.displayName;
+                }
+            }
+
             nameForm.value = c.name;
             tileXForm.value = c.width;
             tileYForm.value = c.height;
         }
+    }
+}
+
+function applyComponentEdits() {
+    if (openedCircuit != null) {
+        var c = openedCircuit.components[selectedElementIndex].componentProperty;
+        var newComponentProperties = new componentProperties(parseInt(tileYForm.value), parseInt(tileXForm.value), nameForm.value, c.type, c.value, c.colors, c.pins, c.rotation, c.layer, c.additionalDetails);
+        if (c.additionalDetails != undefined) {
+            if (c.additionalDetails.hasOwnProperty(`displayName`)) {
+                newComponentProperties.additionalDetails.displayName = displayNameForm.value;
+            }
+        }
+        openedCircuit.components[selectedElementIndex].componentProperty = newComponentProperties;
+        toggleMenu(`componentProperties`);
+        setup();
     }
 }
 
@@ -209,16 +235,6 @@ function updateCircuitDisplay() {
         }
 
         circuitNameInput.value = name;
-    }
-}
-
-function applyComponentEdits() {
-    if (openedCircuit != null) {
-        var c = openedCircuit.components[selectedElementIndex].componentProperty;
-        var newComponentProperties = new componentProperties(parseInt(tileYForm.value), parseInt(tileXForm.value), nameForm.value, c.type, c.value, c.colors, c.pins, c.rotation, c.layer);
-        openedCircuit.components[selectedElementIndex].componentProperty = newComponentProperties;
-        toggleMenu(`componentProperties`);
-        setup();
     }
 }
 
@@ -366,7 +382,10 @@ function layerFour(painter) {
     }
     for (var i = 0; i < l4.length; i++) {
         var centerPoint = averagePinPos(l4[i].pins);
-        drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation, painter);
+        centerPoint.x -= (l4[i].width / 2) - 0.5;
+        centerPoint.y -= (l4[i].height / 2) - 0.5;
+
+        drawType(l4[i].type, l4[i].colors, l4[i].width, l4[i].height, centerPoint.x, centerPoint.y, l4[i].rotation, painter, l4[i].additionalDetails);
     }
 }
 
@@ -502,13 +521,14 @@ function finalExport() {
     croppedCanvas.width = cWidth;
     croppedCanvas.height = cHeight;
     const croppedCanvasContext = croppedCanvas.getContext('2d');
-    for (var i = 3; i >= 0; i--) {
-        croppedCanvasContext.drawImage(canvases[i], UL.x, UL.y, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    for (var i = 4; i >= 0; i--) {
+        croppedCanvasContext.drawImage(canvases[i], UL.x - (calcualtedZoom * 0.5), UL.y - (calcualtedZoom * 0.5), cWidth, cHeight, 0, 0, cWidth, cHeight);
     }
     var link = document.createElement('a');
     link.download = 'export.png';
     link.href = croppedCanvas.toDataURL('image/png');
     link.click();
+    link.remove();
 }
 
 function calculateComponentAngle() {
@@ -535,7 +555,7 @@ function radToDeg(rad) {
     return rad * (180 / Math.PI);
 }
 
-function drawType(type, colors, gridX, gridY, posX, posY, rotation, painter) {
+function drawType(type, colors, gridX, gridY, posX, posY, rotation, painter, additionalDetails) {
     type = "instructions/" + type.replace("-", "/") + ".txt";
     fetch(type)
         .then((response) => response.text())
@@ -581,11 +601,17 @@ function drawType(type, colors, gridX, gridY, posX, posY, rotation, painter) {
                         for (var y = -(gridY / 2); y < gridY / 2; y++) {
                             for (var x = -(gridX / 2); x < gridX / 2; x++) {
                                 // Defines Circle Properties
+                                if (additionalDetails.hasOwnProperty(`displayName`)) {
+                                    var displayName = additionalDetails[`displayName`];
+                                }
                                 painter.transform(1, 0, 0, 1, (x + 0.5) * calcualtedZoom, (y + 0.5) * calcualtedZoom);
-                                paintText(instruction[1] * calcualtedZoom, instruction[2] * calcualtedZoom, instruction[3], colors[parseInt(instruction[4])], painter);
+                                paintText(instruction[1] * calcualtedZoom, instruction[2] * calcualtedZoom, displayName, colors[parseInt(instruction[3])], painter);
                                 painter.transform(1, 0, 0, 1, -(x + 0.5) * calcualtedZoom, -(y + 0.5) * calcualtedZoom);
                             }
                         }
+                        break;
+                    case "//":
+                        //ignore these commands since they are comments
                         break;
                 }
                 painter.rotate(-degToRad(rotation));
@@ -646,14 +672,14 @@ function drawCircleHollow(tX, tY, bX, bY, color, painter) {
 }
 
 function drawRectangleHollow(tX, tY, bX, bY, color, painter) {
-    var width = bX - tX;
-    var height = bY - tY;
+    var width = (bX - tX);
+    var height = (bY - tY);
 
     painter.lineWidth = 3;
 
     painter.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
-    painter.rect(tX, tY, width, height);
+    painter.rect(tX - (0.5 * calcualtedZoom), tY - (0.5 * calcualtedZoom), width, height);
     painter.stroke();
     painter.closePath();
 
@@ -661,8 +687,8 @@ function drawRectangleHollow(tX, tY, bX, bY, color, painter) {
 }
 
 function drawRectangle(tX, tY, bX, bY, color, painter) {
-    var width = bX - tX;
-    var height = bY - tY;
+    var width = (bX - tX);
+    var height = (bY - tY);
 
     painter.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
     painter.beginPath();
@@ -982,8 +1008,10 @@ function input(key) {
             break;
         case "r":
             if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
-                    openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                if (openedCircuit != null) {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
+                        openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                    }
                 }
             }
             setup();

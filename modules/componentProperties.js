@@ -1,9 +1,7 @@
-import { pin } from "./pin.js";
-
 export const name = "componentProperties";
 
 export class componentProperties {
-    constructor(height, width, name, type, value, colors, pins, rotation, layer) {
+    constructor(height, width, name, type, value, colors, pins, rotation, layer, additionalDetails) {
         this.height = height;
         this.width = width;
         this.name = name;
@@ -13,5 +11,6 @@ export class componentProperties {
         this.pins = pins;
         this.rotation = rotation;
         this.layer = layer;
+        this.additionalDetails = additionalDetails;
     }
 }

@@ -22,7 +22,7 @@
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/board-icon.png" />
                 <a onclick="newComponent(`board-perf`)">Perf Board</a>
               </li>
             </div>
@@ -33,11 +33,11 @@
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/capacitor-icon.png" />
                 <a onclick="newComponent(`capacitor-polarized`)">Polarized</a>
               </li>
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/capacitor-np-icon.png" />
                 <a onclick="newComponent(`capacitor-default`)">Default</a>
               </li>
             </div>
@@ -48,34 +48,38 @@
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/led-icon.png" />
                 <a onclick="newComponent(`diode-led`)">LED</a>
               </li>
             </div>
             <!--Headers-->
             <li class="collapsible">
-              <img src="/Images/header-icon.png" />
+              <img src="/Images/male-header-icon.png" />
               <a href="#">Headers</a>
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/male-header-icon.png" />
                 <a onclick="newComponent(`header-male`)">Male Header</a>
               </li>
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/female-header-icon.png" />
                 <a onclick="newComponent(`header-female`)">Female Header</a>
               </li>
             </div>
             <!--Integrated Circuits-->
             <li class="collapsible">
-              <img src="/Images/ic-icon.png" />
+              <img src="/Images/ic-4b4-icon.png" />
               <a href="#">ICs</a>
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/ic-4b4-icon.png" />
                 <a onclick="newComponent(`ic-4b4`)">4x4 IC</a>
+              </li>
+              <li>
+                <img src="/Images/ic-4b4-icon.png" />
+                <a onclick="newComponent(`ic-8b4`)">8x4 IC</a>
               </li>
             </div>
             <!--Resistors-->
@@ -85,15 +89,15 @@
             </li>
             <div class="items">
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/resistor-icon.png" />
                 <a onclick="newComponent(`resistor-default`)">Default</a>
               </li>
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/pot-icon.png" />
                 <a onclick="newComponent(`resistor-pot`)">Potentiometer</a>
               </li>
               <li>
-                <img src="/Images/folder-icon.png" />
+                <img src="/Images/photo-resistor-icon.png" />
                 <a onclick="newComponent(`resistor-photo`)">Photo Resistor</a>
               </li>
             </div>
@@ -159,6 +163,10 @@
             <tr>
               <td>TileY</td>
               <td colspan="2"><input type="text" id="tileY" /></td>
+            </tr>
+            <tr style="display: none" id="displayNameRow">
+              <td>Display</td>
+              <td colspan="2"><input type="text" id="displayName" /></td>
             </tr>
             <tr>
               <td>
@@ -240,7 +248,7 @@
               <td>X2</td>
               <td>
                 <input
-                  value="11"
+                  value="15"
                   type="text"
                   id="exportX2"
                   onchange="updateExportPreview()"
@@ -249,7 +257,7 @@
               <td>Y2</td>
               <td>
                 <input
-                  value="11"
+                  value="15"
                   type="text"
                   id="exportY2"
                   onchange="updateExportPreview()"
@@ -392,6 +400,7 @@
           <option value="2">200%</option>
           <option value="2.5">250%</option>
           <option value="5">500%</option>
+          <option value="10">1000%</option>
         </select>
       </div>
     </div>
