@@ -6,9 +6,9 @@ The main mode switching key is 'P' which switches between Component, Traces and 
 Component and Trace mode each highlight their respective type of element and change the way the other keys work.
 None mode highlight/selects nothing.
 
-The keys - and = cycle through the elements in your selected mode (e.g. if the mode is Components, the = key will cycle from oldest to newest and the - key will do the opposite). The component selected will be shown with the green circle.
+The keys '-' and '=' cycle through the elements in your selected mode (e.g. if the mode is Components, the '=' key will cycle from oldest to newest and the '-' key will do the opposite). The component selected will be shown with the green circle.
 
-The keys [ and ] cycle through the pins of the element selected with the keys - and = as long as it is a trace or a component with 2 components. The pin selected will be shown with the red circle.
+The keys '[' and ']' cycle through the pins of the element selected with the keys '-' and '=' as long as it is a trace or a component with 2 components. The pin selected will be shown with the red circle.
 
 The key Backspace will delete the selected element wether that be a Component or a Trace.
 
