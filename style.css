@@ -77,7 +77,7 @@
   border-top:1px solid #3C3836 ;
 }
 
-.newCircuit{
+.newCircuit, .shiftCircuit{
   float:inline-end;
   border: 1px solid #d5c4a1;
   margin:10px;

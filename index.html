@@ -142,6 +142,34 @@
           </table>
         </div>
 
+        <div class="shiftCircuit">
+          <table>
+            <tr>
+              <td>Shift Circuit</td>
+              <td>
+                <button onclick="toggleMenu(`shiftCircuit`)">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>ShiftX</td>
+              <td><input type="text" id="shiftX" /></td>
+            </tr>
+            <tr>
+              <td>ShiftY</td>
+              <td><input type="text" id="shiftY" /></td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="shiftCircuit()" style="float: left">
+                  <p>Go</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+
         <div class="componentProperties">
           <table>
             <tr>
@@ -317,6 +345,11 @@
                 <li>
                   <a onclick="toggleMenu(`circuitProperties`)" href="#"
                     >Modify Circuit</a
+                  >
+                </li>
+                <li>
+                  <a onclick="toggleMenu('shiftCircuit')" href="#"
+                    >Shift Circuit</a
                   >
                 </li>
               </ul>
