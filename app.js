@@ -54,6 +54,7 @@ window.deleteElement = deleteElement;
 window.updateExportPreview = updateExportPreview;
 window.exportArea = exportArea;
 window.toggleMenu = toggleMenu;
+window.shiftCircuit = shiftCircuit;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
@@ -89,7 +90,26 @@ function setup() {
     }
 
     // use this to test out new components
-    //drawType("ic-8b4", [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], 1, 1, 10, 10, 0, painters[4], undefined);
+    // drawType("switch-default", [new rgb(50, 50, 50), new rgb(191, 191, 191), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], 1, 1, 3, 3, 0, painters[4], { displayName: "555" });
+}
+
+const shiftXEl = document.querySelector("#shiftX");
+const shiftYEl = document.querySelector("#shiftY");
+
+function shiftCircuit() {
+    var shiftX = parseInt(shiftXEl.value);
+    var shiftY = parseInt(shiftYEl.value);
+
+    for (var i = 0; i < openedCircuit.components.length; i++) {
+        openedCircuit.components[i].componentProperty.pins = moveComponent(openedCircuit.components[i].componentProperty, shiftX, shiftY)
+    }
+
+    for (var i = 0; i < openedCircuit.traces.length; i++) {
+        openedCircuit.traces[i].pin1 = movePin(openedCircuit.traces[i].pin1, shiftX, shiftY);
+        openedCircuit.traces[i].pin2 = movePin(openedCircuit.traces[i].pin2, shiftX, shiftY);
+    }
+
+    refreshCanvas();
 }
 
 function refreshCanvas() {
@@ -758,7 +778,8 @@ var menuToggles = {
     "newCircuit": false,
     "componentProperties": false,
     "circuitProperties": false,
-    "exportToPNG": false
+    "exportToPNG": false,
+    "shiftCircuit": false
 };
 
 var circuitRequired = [

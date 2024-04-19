@@ -101,6 +101,25 @@
                 <a onclick="newComponent(`resistor-photo`)">Photo Resistor</a>
               </li>
             </div>
+            <!--Buttons/Switches-->
+            <li class="collapsible">
+              <img src="/Images/button-4p.png" />
+              <a href="#">Buttons & Switches</a>
+            </li>
+            <div class="items">
+              <li>
+                <img src="/Images/button-2p.png" />
+                <a onclick="newComponent(`button-twoPin`)">Two Pin Button</a>
+              </li>
+              <li>
+                <img src="/Images/button-4p.png" />
+                <a onclick="newComponent(`button-fourPin`)">Four Pin Button</a>
+              </li>
+              <li>
+                <img src="/Images/switch-default.png" />
+                <a onclick="newComponent(`switch-default`)">Switch</a>
+              </li>
+            </div>
             <!--Traces-->
             <li>
               <img src="/Images/trace-icon.png" />
@@ -136,6 +155,34 @@
               <td>
                 <button onclick="newCircuit()" style="float: left">
                   <p>Create</p>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="shiftCircuit">
+          <table>
+            <tr>
+              <td>Shift Circuit</td>
+              <td>
+                <button onclick="toggleMenu(`shiftCircuit`)">
+                  <p>X</p>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>ShiftX</td>
+              <td><input type="text" id="shiftX" /></td>
+            </tr>
+            <tr>
+              <td>ShiftY</td>
+              <td><input type="text" id="shiftY" /></td>
+            </tr>
+            <tr>
+              <td>
+                <button onclick="shiftCircuit()" style="float: left">
+                  <p>Go</p>
                 </button>
               </td>
             </tr>
@@ -317,6 +364,11 @@
                 <li>
                   <a onclick="toggleMenu(`circuitProperties`)" href="#"
                     >Modify Circuit</a
+                  >
+                </li>
+                <li>
+                  <a onclick="toggleMenu('shiftCircuit')" href="#"
+                    >Shift Circuit</a
                   >
                 </li>
               </ul>
