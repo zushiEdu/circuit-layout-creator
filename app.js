@@ -90,7 +90,7 @@ function setup() {
     }
 
     // use this to test out new components
-    //drawType("ic-8b4", [new rgb(50, 50, 50), new rgb(255, 255, 255), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], 1, 1, 10, 10, 0, painters[4], undefined);
+    // drawType("switch-default", [new rgb(50, 50, 50), new rgb(191, 191, 191), new rgb(102, 102, 102), new rgb(255, 255, 255), new rgb(0, 0, 0)], 1, 1, 3, 3, 0, painters[4], { displayName: "555" });
 }
 
 const shiftXEl = document.querySelector("#shiftX");
