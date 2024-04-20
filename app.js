@@ -55,6 +55,7 @@ window.updateExportPreview = updateExportPreview;
 window.exportArea = exportArea;
 window.toggleMenu = toggleMenu;
 window.shiftCircuit = shiftCircuit;
+window.updateHiearchy = updateHiearchy;
 
 const defaultGridSize = 30;
 var calcualtedZoom = defaultGridSize * zoom.value;
@@ -135,16 +136,27 @@ function refreshCanvas() {
 }
 
 const hiearchyDiv = document.querySelector(".component-hierarchy");
+const hiearchySearch = document.querySelector(".compSearchBox");
 function updateHiearchy() {
     hiearchyDiv.innerHTML = null;
+    var search = hiearchySearch.value;
+
     for (var i = 0; i < openedCircuit.components.length; i++) {
         var textElement = document.createElement("a");
         textElement.setAttribute("onclick", `selectComponent(${i})`);
         textElement.style.borderBottom = "thin dashed #5A574C";
-        var text = openedCircuit.components[i].componentProperty.name;
+        if (openedCircuit.components[i].componentProperty.additionalDetails == null) {
+            var text = openedCircuit.components[i].componentProperty.name
+        } else {
+            var text = openedCircuit.components[i].componentProperty.name + " (" + openedCircuit.components[i].componentProperty.additionalDetails.displayName + ")";
+            // console.log(openedCircuit.components[i].componentProperty.additionalDetails.displayName)
+        }
+
         var node = document.createTextNode(text);
         textElement.appendChild(node);
-        hiearchyDiv.appendChild(textElement);
+        if (text.includes(search)) {
+            hiearchyDiv.appendChild(textElement);
+        }
     }
 }
 
@@ -869,184 +881,186 @@ slider.addEventListener('mousemove', (e) => {
 
 // Key Input
 function input(key) {
-    switch (key) {
-        case "ArrowUp":
-            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
-                if (highlightSelected == "Comps") {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, -1);
-                    } else {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
-                    }
-                } else if (highlightSelected == "Traces") {
-                    if (selectedTracePinIndex == 0) {
-                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
-                    } else if (selectedTracePinIndex == 1) {
-                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, -1);
-                    }
-                }
-            }
-            setup();
-            break;
-        case "ArrowDown":
-            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
-                if (highlightSelected == "Comps") {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, 1);
-                    } else {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
-                    }
-                } else if (highlightSelected == "Traces") {
-                    if (selectedTracePinIndex == 0) {
-                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
-                    } else if (selectedTracePinIndex == 1) {
-                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, 1);
-                    }
-                }
-            }
-            setup();
-            break;
-        case "ArrowRight":
-            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
-                if (highlightSelected == "Comps") {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 1, 0);
-                    } else {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
-                    }
-                } else if (highlightSelected == "Traces") {
-                    if (selectedTracePinIndex == 0) {
-                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
-                    } else if (selectedTracePinIndex == 1) {
-                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 1, 0);
-                    }
-                }
-            }
-            setup();
-            break;
-        case "ArrowLeft":
-            if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
-                if (highlightSelected == "Comps") {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], -1, 0);
-                    } else {
-                        openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
-                    }
-                } else if (highlightSelected == "Traces") {
-                    if (selectedTracePinIndex == 0) {
-                        openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
-                    } else if (selectedTracePinIndex == 1) {
-                        openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, -1, 0);
-                    }
-                }
-            }
-            setup();
-            break;
-        case "]":
-            if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex + 1 == 2) {
-                    selectedTracePinIndex = 0;
-                } else {
-                    selectedTracePinIndex++;
-                }
-            } else if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex] != null) {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                        if (selectedElementPinIndex + 1 == 2) {
-                            selectedElementPinIndex = 0;
+    if (!(document.activeElement.className === "compSearchBox")) {
+        switch (key) {
+            case "ArrowUp":
+                if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                    if (highlightSelected == "Comps") {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, -1);
                         } else {
-                            selectedElementPinIndex++;
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, -1)
+                        }
+                    } else if (highlightSelected == "Traces") {
+                        if (selectedTracePinIndex == 0) {
+                            openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, -1);
+                        } else if (selectedTracePinIndex == 1) {
+                            openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, -1);
                         }
                     }
                 }
-            }
-            setup();
-            break;
-        case "[":
-            if (highlightSelected == "Traces") {
-                if (selectedTracePinIndex == 0) {
-                    selectedTracePinIndex = 1
-                } else {
-                    selectedTracePinIndex--;
+                setup();
+                break;
+            case "ArrowDown":
+                if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                    if (highlightSelected == "Comps") {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 0, 1);
+                        } else {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 0, 1)
+                        }
+                    } else if (highlightSelected == "Traces") {
+                        if (selectedTracePinIndex == 0) {
+                            openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 0, 1);
+                        } else if (selectedTracePinIndex == 1) {
+                            openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 0, 1);
+                        }
+                    }
                 }
-            } else if (highlightSelected == "Comps") {
-                if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
-                    if (selectedElementPinIndex == 0) {
-                        selectedElementPinIndex = openedCircuit.components[selectedElementIndex].circuitProperty.pins.length - 1;
+                setup();
+                break;
+            case "ArrowRight":
+                if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                    if (highlightSelected == "Comps") {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], 1, 0);
+                        } else {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, 1, 0)
+                        }
+                    } else if (highlightSelected == "Traces") {
+                        if (selectedTracePinIndex == 0) {
+                            openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, 1, 0);
+                        } else if (selectedTracePinIndex == 1) {
+                            openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, 1, 0);
+                        }
+                    }
+                }
+                setup();
+                break;
+            case "ArrowLeft":
+                if (openedCircuit.components != null && openedCircuit.components.length >= 0) {
+                    if (highlightSelected == "Comps") {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex] = movePin(openedCircuit.components[selectedElementIndex].componentProperty.pins[selectedElementPinIndex], -1, 0);
+                        } else {
+                            openedCircuit.components[selectedElementIndex].componentProperty.pins = moveComponent(openedCircuit.components[selectedElementIndex].componentProperty, -1, 0)
+                        }
+                    } else if (highlightSelected == "Traces") {
+                        if (selectedTracePinIndex == 0) {
+                            openedCircuit.traces[selectedTraceIndex].pin1 = movePin(openedCircuit.traces[selectedTraceIndex].pin1, -1, 0);
+                        } else if (selectedTracePinIndex == 1) {
+                            openedCircuit.traces[selectedTraceIndex].pin2 = movePin(openedCircuit.traces[selectedTraceIndex].pin2, -1, 0);
+                        }
+                    }
+                }
+                setup();
+                break;
+            case "]":
+                if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex + 1 == 2) {
+                        selectedTracePinIndex = 0;
                     } else {
-                        selectedElementPinIndex--;
+                        selectedTracePinIndex++;
+                    }
+                } else if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex] != null) {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                            if (selectedElementPinIndex + 1 == 2) {
+                                selectedElementPinIndex = 0;
+                            } else {
+                                selectedElementPinIndex++;
+                            }
+                        }
                     }
                 }
-            }
-            setup();
-            break;
-        case "=":
-            if (highlightSelected == "Traces") {
-                if (selectedTraceIndex + 1 == openedCircuit.traces.length) {
+                setup();
+                break;
+            case "[":
+                if (highlightSelected == "Traces") {
+                    if (selectedTracePinIndex == 0) {
+                        selectedTracePinIndex = 1
+                    } else {
+                        selectedTracePinIndex--;
+                    }
+                } else if (highlightSelected == "Comps") {
+                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length == 2) {
+                        if (selectedElementPinIndex == 0) {
+                            selectedElementPinIndex = openedCircuit.components[selectedElementIndex].circuitProperty.pins.length - 1;
+                        } else {
+                            selectedElementPinIndex--;
+                        }
+                    }
+                }
+                setup();
+                break;
+            case "=":
+                if (highlightSelected == "Traces") {
+                    if (selectedTraceIndex + 1 == openedCircuit.traces.length) {
+                        selectedTraceIndex = 0;
+                    } else {
+                        selectedTraceIndex++;
+                    }
+                } else if (highlightSelected == "Comps") {
+                    if (selectedElementIndex + 1 == openedCircuit.components.length) {
+                        selectedElementIndex = 0;
+                    } else {
+                        selectedElementIndex++;
+                    }
+                }
+                setup();
+                break;
+            case "-":
+                if (highlightSelected == "Traces") {
+                    if (selectedTraceIndex == 0) {
+                        selectedTraceIndex = openedCircuit.traces.length - 1;
+                    } else {
+                        selectedTraceIndex--;
+                    }
+                } else if (highlightSelected == "Comps") {
+                    if (selectedElementIndex == 0) {
+                        selectedElementIndex = openedCircuit.components.length - 1;
+                    } else {
+                        selectedElementIndex--;
+                    }
+                }
+                setup();
+                break;
+            case "p":
+                switch (highlightSelected) {
+                    case "None":
+                        highlightSelected = "Comps";
+                        break;
+                    case "Comps":
+                        highlightSelected = "Traces";
+                        break;
+                    case "Traces":
+                        highlightSelected = "None";
+                        break;
+                }
+                highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
+                setup();
+                break;
+            case "r":
+                if (highlightSelected == "Comps") {
+                    if (openedCircuit != null) {
+                        if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
+                            openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
+                        }
+                    }
+                }
+                setup();
+                break;
+            case "Delete":
+                if (highlightSelected == "Traces") {
+                    openedCircuit.traces.splice(selectedTraceIndex, 1);
                     selectedTraceIndex = 0;
-                } else {
-                    selectedTraceIndex++;
-                }
-            } else if (highlightSelected == "Comps") {
-                if (selectedElementIndex + 1 == openedCircuit.components.length) {
+                } else if (highlightSelected == "Comps") {
+                    openedCircuit.components.splice(selectedElementIndex, 1);
                     selectedElementIndex = 0;
-                } else {
-                    selectedElementIndex++;
                 }
-            }
-            setup();
-            break;
-        case "-":
-            if (highlightSelected == "Traces") {
-                if (selectedTraceIndex == 0) {
-                    selectedTraceIndex = openedCircuit.traces.length - 1;
-                } else {
-                    selectedTraceIndex--;
-                }
-            } else if (highlightSelected == "Comps") {
-                if (selectedElementIndex == 0) {
-                    selectedElementIndex = openedCircuit.components.length - 1;
-                } else {
-                    selectedElementIndex--;
-                }
-            }
-            setup();
-            break;
-        case "p":
-            switch (highlightSelected) {
-                case "None":
-                    highlightSelected = "Comps";
-                    break;
-                case "Comps":
-                    highlightSelected = "Traces";
-                    break;
-                case "Traces":
-                    highlightSelected = "None";
-                    break;
-            }
-            highlightedDisplay.innerHTML = `Highlighted: ${highlightSelected}`;
-            setup();
-            break;
-        case "r":
-            if (highlightSelected == "Comps") {
-                if (openedCircuit != null) {
-                    if (openedCircuit.components[selectedElementIndex].componentProperty.pins.length != 2) {
-                        openedCircuit.components[selectedElementIndex].componentProperty.rotation += 45;
-                    }
-                }
-            }
-            setup();
-            break;
-        case "Delete":
-            if (highlightSelected == "Traces") {
-                openedCircuit.traces.splice(selectedTraceIndex, 1);
-                selectedTraceIndex = 0;
-            } else if (highlightSelected == "Comps") {
-                openedCircuit.components.splice(selectedElementIndex, 1);
-                selectedElementIndex = 0;
-            }
-            setup();
-            break;
+                setup();
+                break;
+        }
     }
 }
 
