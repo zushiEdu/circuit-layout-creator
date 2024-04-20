@@ -14,6 +14,8 @@ The key Backspace will delete the selected element wether that be a Component or
 
 <ins>Touch controls will be added in the near future</ins>
 
+![Interface Preview](https://i.ibb.co/yPh8KXc/Screenshot-2024-04-19-at-9-56-22-PM.png)
+
 ## Future Steps
 As more feedback is given through the form on the help section of the app or through peers, the app will get more user friendly. 
 Please feel free to discuss about this project or submit feedback!
